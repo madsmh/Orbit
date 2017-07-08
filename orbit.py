@@ -73,7 +73,7 @@ class Body:
         a = target.compute_acceleration(self.x + dt / 2 * k2x, self.y + dt / 2 * k2y)
 
         k3vx = a[0]
-        k3vy = a[0]
+        k3vy = a[1]
 
         k4x = self.vx + dt * k3vx
         k4y = self.vy + dt * k3vy
