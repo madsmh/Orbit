@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 class Body:
     """A celestial body """
@@ -86,11 +86,11 @@ class Body:
 
         # Update position
         self.x = self.x + dt / 6 * (k1x + 2 * k2x + 2 * k3x + k4x)
-        self.x = self.x + dt / 6 * (k1y + 2 * k2y + 2 * k3y + k4y)
+        self.y = self.y + dt / 6 * (k1y + 2 * k2y + 2 * k3y + k4y)
 
         # Update velocity
         self.vx = self.vx + dt / 6 * (k1vx + 2 * k2vx + 2 * k3vx + k4vx)
-        self.vy = self.vx + dt / 6 * (k1vy + 2 * k2vy + 2 * k3vy + k4vy)
+        self.vy = self.vy + dt / 6 * (k1vy + 2 * k2vy + 2 * k3vy + k4vy)
 
 SUN_MASS = 1.989e30
 SUN_RADIUS = 695700000.0
@@ -103,6 +103,32 @@ EARTH_MASS = 5.972e24
 EARTH_RADIUS = 6371000.0
 dt = 86400.0
 
+# Bodies
 sun = Body('Sun', 0, 0, 0, 0, SUN_MASS, SUN_RADIUS)
 earth = Body('Earth', EARTH_X0, EARTH_Y0, EARTH_VX0, EARTH_VY0, EARTH_MASS, EARTH_RADIUS)
 
+def plot_earth():
+    """Generate x,y-coords of earth"""
+    pos = np.zeros(shape=(365, 2))
+    for i in range(365):
+        pos[i][0] = earth.x
+        pos[i][1] = earth.y
+        earth.step(dt, sun)
+    return pos
+
+traject = plot_earth()
+x, y = traject.T
+r = earth.radius
+
+phi = np.linspace(0.0, 2*np.pi, 100)
+
+na = np.newaxis
+x_line_earth = x[na, : ] + r * np.sin(phi[ : , na])
+y_line_earth = y[na, : ] + r * np.cos(phi[ : , na])
+
+x_line_sun = sun.radius*np.sin(phi[ : , na])
+y_line_sun = sun.radius*np.cos(phi[ : , na])
+
+plt.plot(x_line_earth, y_line_earth )
+plt.plot(x_line_sun, y_line_sun)
+plt.show()
