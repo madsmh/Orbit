@@ -92,6 +92,7 @@ class Body:
         self.vx = self.vx + dt / 6 * (k1vx + 2 * k2vx + 2 * k3vx + k4vx)
         self.vy = self.vy + dt / 6 * (k1vy + 2 * k2vy + 2 * k3vy + k4vy)
 
+# Physical constants of the celestial bodies
 SUN_MASS = 1.989e30
 SUN_RADIUS = 695700000.0
 
@@ -101,14 +102,26 @@ EARTH_VX0 = 0.0
 EARTH_VY0 = -30300.0
 EARTH_MASS = 5.972e24
 EARTH_RADIUS = 6371000.0
+
+JUPITER_X0 = -740520000000
+JUPITER_Y0 = 0.0
+JUPITER_VX0 = 0.0
+JUPITER_VY0 = -13720
+JUPITER_MASS = 1898.19e24
+JUPUTER_RADIUS = 71492000
+
+# Time interval (1 Earth day)
 dt = 86400.0
 
 # Bodies
 sun = Body('Sun', 0, 0, 0, 0, SUN_MASS, SUN_RADIUS)
 earth = Body('Earth', EARTH_X0, EARTH_Y0, EARTH_VX0, EARTH_VY0, EARTH_MASS, EARTH_RADIUS)
+jupiter = Body('Jupiter', JUPITER_X0, JUPITER_Y0, JUPITER_VX0, JUPITER_VY0,
+               JUPITER_MASS, JUPUTER_RADIUS)
 
-def plot_earth():
-    """Generate x,y-coords of earth"""
+# Generate coordinates
+def coords_earth():
+    """Generate x,y-coordinates of Earth"""
     pos = np.zeros(shape=(365, 2))
     for i in range(365):
         pos[i][0] = earth.x
@@ -116,19 +129,44 @@ def plot_earth():
         earth.step(dt, sun)
     return pos
 
-traject = plot_earth()
-x, y = traject.T
-r = earth.radius
+def coords_jupiter():
+    """Generate x,y-coordinates of Jupiter"""
+    pos = np.zeros(shape=(4332, 2))
+    for i in range(4332):
+        pos[i][0] = jupiter.x
+        pos[i][1] = jupiter.y
+        jupiter.step(dt, sun)
+    return pos
+
+# Trajectories of the planets
+trajectory_earth = coords_earth()
+trajectory_jupiter = coords_jupiter()
+
+# Coordinates of the planets
+x_earth, y_earth = trajectory_earth.T
+x_jupiter, y_jupiter = trajectory_jupiter.T
 
 phi = np.linspace(0.0, 2*np.pi, 100)
-
 na = np.newaxis
-x_line_earth = x[na, : ] + r * np.sin(phi[ : , na])
-y_line_earth = y[na, : ] + r * np.cos(phi[ : , na])
 
+# Draw circles representing Earth
+x_line_earth = x_earth [na, : ] + earth.radius * np.sin(phi[ : , na])
+y_line_earth = y_earth[na, : ] + earth.radius * np.cos(phi[ : , na])
+
+# Draw circles representing Jupiter
+x_line_jupiter = x_jupiter [na, : ] + jupiter.radius * np.sin(phi[ : , na])
+y_line_jupiter = y_jupiter[na, : ] + jupiter.radius * np.cos(phi[ : , na])
+
+
+# Draw circle representing the Sun
 x_line_sun = sun.radius*np.sin(phi[ : , na])
 y_line_sun = sun.radius*np.cos(phi[ : , na])
 
-plt.plot(x_line_earth, y_line_earth )
+plt.figure(figsize=(10,30))
+plt.axes().set_aspect('equal')
+plt.plot(x_line_earth, y_line_earth)
 plt.plot(x_line_sun, y_line_sun)
+plt.plot(x_line_jupiter, y_line_jupiter)
+
+
 plt.show()
