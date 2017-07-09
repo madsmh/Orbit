@@ -45,52 +45,52 @@ class Body:
 
         return ax, ay
 
-    def step(self, dt, *targets):
+    def step(self, dt, args):
         """4th order Runge-Kutta integration"""
 
         # Acceleration due to targets (NumPy array)
-        a = 0
-        for i in range(len(targets)):
-            a += np.array(targets[i].compute_acceleration(self.x, self.y))
+        a = np.zeros(shape=(1, 2))
+        for o in args:
+            a = a + np.array(o.compute_acceleration(self.x, self.y))
 
         k1x = self.vx
         k1y = self.vy
 
-        k1vx = a[0]
-        k1vy = a[1]
+        k1vx = a[0][0]
+        k1vy = a[0][1]
 
         k2x = self.vx + dt / 2 * k1vx
         k2y = self.vy + dt / 2 * k1vy
 
         # Acceleration due to targets (NumPy array)
-        a = 0
-        for i in range(len(targets)):
-            a += np.array(targets[i].compute_acceleration(self.x + dt / 2 * k1x, self.y + dt / 2 * k1y))
+        a = np.zeros(shape=(1, 2))
+        for o in args:
+            a += np.array(o.compute_acceleration(self.x + dt / 2 * k1x, self.y + dt / 2 * k1y))
 
-        k2vx = a[0]
-        k2vy = a[1]
+        k2vx = a[0][0]
+        k2vy = a[0][1]
 
         k3x = self.vx + dt / 2 * k2vx
         k3y = self.vy + dt / 2 * k2vy
 
         # Acceleration due to targets (NumPy array)
-        a = 0
-        for i in range(len(targets)):
-            a += np.array(targets[i].compute_acceleration(self.x + dt / 2 * k2x, self.y + dt / 2 * k2y))
+        a = np.zeros(shape=(1, 2))
+        for o in args:
+            a += np.array(o.compute_acceleration(self.x + dt / 2 * k2x, self.y + dt / 2 * k2y))
 
-        k3vx = a[0]
-        k3vy = a[1]
+        k3vx = a[0][0]
+        k3vy = a[0][1]
 
         k4x = self.vx + dt * k3vx
         k4y = self.vy + dt * k3vy
 
         # Acceleration due to targets (NumPy array)
-        a = 0
-        for i in range(len(targets)):
-            a += np.array(targets[i].compute_acceleration(self.x + dt * k3x, self.y + dt * k3y))
+        a = np.zeros(shape=(1, 2))
+        for o in args:
+            a += np.array(o.compute_acceleration(self.x + dt * k3x, self.y + dt * k3y))
 
-        k4vx = a[0]
-        k4vy = a[1]
+        k4vx = a[0][0]
+        k4vy = a[0][1]
 
         # Update position
         self.x = self.x + dt / 6 * (k1x + 2 * k2x + 2 * k3x + k4x)
