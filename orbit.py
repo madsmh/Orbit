@@ -96,12 +96,13 @@ def coords_venus():
 trajectory_earth = coords_earth()
 trajectory_mars = coords_mars()
 trajectory_venus = coords_venus()
+trajectory_jupiter = coords_jupiter()
 
 # Coordinates of the planets
 x_earth, y_earth = trajectory_earth.T
 x_mars, y_mars = trajectory_mars.T
 x_venus, y_venus = trajectory_venus.T
-
+x_jupiter, y_jupiter = trajectory_jupiter.T
 phi = np.linspace(0.0, 2*np.pi, 100)
 na = np.newaxis
 
@@ -117,6 +118,10 @@ y_line_mars = y_mars[na, :] + mars.radius * np.cos(phi[:, na])
 x_line_venus = x_venus[na, :] + venus.radius * np.sin(phi[:, na])
 y_line_venus = y_venus[na, :] + venus.radius * np.cos(phi[:, na])
 
+# Draw circles representing Venus
+x_line_jupiter = x_jupiter[na, :] + jupiter.radius * np.sin(phi[:, na])
+y_line_jupiter = y_jupiter[na, :] + jupiter.radius * np.cos(phi[:, na])
+
 # Draw circle representing the Sun
 x_line_sun = sun.radius * np.sin(phi[:, na])
 y_line_sun = sun.radius * np.cos(phi[:, na])
@@ -126,5 +131,6 @@ plt.plot(x_line_earth, y_line_earth)
 plt.plot(x_line_sun, y_line_sun)
 plt.plot(x_line_mars, y_line_mars)
 plt.plot(x_line_venus, y_line_venus)
+plt.plot(x_line_jupiter, y_line_jupiter)
 
 plt.show()
