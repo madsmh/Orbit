@@ -92,10 +92,10 @@ x_jupiter, y_jupiter = trajectory_jupiter.T
 
 plt.axes().set_aspect('equal', 'datalim')
 
-plt.plot(x_earth, y_earth, 'g', linewidth = 0.5)
-plt.plot(x_mars, y_mars, 'r', linewidth = 0.5)
-plt.plot(x_venus, y_venus, 'b', linewidth = 0.5)
-plt.plot(x_jupiter, y_jupiter, 'r', linewidth = 0.5)
+plt.plot(x_earth, y_earth, 'g', linewidth=0.5)
+plt.plot(x_mars, y_mars, 'r', linewidth=0.5)
+plt.plot(x_venus, y_venus, 'b', linewidth=0.5)
+plt.plot(x_jupiter, y_jupiter, 'k', linewidth=0.5)
 plt.show()
 
 # phi = np.linspace(0.0, 2*np.pi, 100)
@@ -127,5 +127,3 @@ plt.show()
 # plt.plot(x_line_mars, y_line_mars)
 # plt.plot(x_line_venus, y_line_venus)
 # plt.plot(x_line_jupiter, y_line_jupiter)
-
-
