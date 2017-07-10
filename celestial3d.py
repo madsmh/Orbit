@@ -7,7 +7,7 @@ class Body:
     def __init__(self, name, x0, y0, z0, vx0, vy0, vz0, mass, radius):
 
         # Constants of nature
-        # Universal constant of integration
+        # Universal constant of gravitation
         self.G = 6.67408e-11
 
         # Name of the body (string)
