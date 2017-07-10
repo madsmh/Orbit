@@ -2,11 +2,12 @@ import numpy as np
 
 
 class Body:
-    """A celestial body """
+    """A celestial body class, with all initial values in SI units """
 
     def __init__(self, name, x0, y0, vx0, vy0, mass, radius):
 
         # Constants of nature
+        # Universal constant of integration
         self.G = 6.67408e-11
 
         # Name of the body (string)
