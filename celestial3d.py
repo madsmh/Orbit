@@ -1,5 +1,6 @@
 import numpy as np
 
+# TODO Need to verify that the method is valid.
 
 class Body:
     """A celestial body class, with all initial values in SI units """
