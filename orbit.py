@@ -166,14 +166,29 @@ plt.plot(x_sun, y_sun, 'k')
 plt.plot(x_saturn, y_saturn, 'b', linewidth=0.5)
 plt.plot(x_uranus, y_uanus, 'k', linewidth=0.5)
 plt.plot(x_neptune, y_neptune, 'r', linewidth=0.5)
+
+# Plot circles representing the planets
+phi = np.linspace(0.0, 2*np.pi, 100)
+na = np.newaxis
+
+x_line_sun = x_sun[-1] + sun.radius * np.sin(phi[:, na])
+y_line_sun = y_sun[-1] + sun.radius * np.cos(phi[:, na])
+
+x_line_earth = x_earth[-1] + earth.radius * np.sin(phi[:, na])
+y_line_earth = y_earth[-1] + earth.radius * np.cos(phi[:, na])
+
+x_line_jupiter = x_jupiter[-1] + jupiter.radius * np.sin(phi[:, na])
+y_line_jupiter = y_jupiter[-1] + jupiter.radius * np.cos(phi[:, na])
+
+
+plt.plot(x_line_earth, y_line_earth)
+plt.plot(x_line_sun, y_line_sun, 'y')
+plt.plot(x_line_jupiter, y_line_jupiter, 'b')
+plt.plot(x_line_sun, y_line_sun, 'y')
+
+
 plt.show()
 
-# phi = np.linspace(0.0, 2*np.pi, 100)
-# na = np.newaxis
-#
-# # Draw circles representing Earth
-# x_line_earth = x_earth[na, :] + earth.radius * np.sin(phi[:, na])
-# y_line_earth = y_earth[na, :] + earth.radius * np.cos(phi[:, na])
 #
 # # Draw circles representing Mars
 # x_line_mars = x_mars[na, :] + mars.radius * np.sin(phi[:, na])
