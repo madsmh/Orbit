@@ -45,12 +45,12 @@ class Body:
 
         return ax, ay
 
-    def step(self, dt, args):
+    def step(self, dt, targets):
         """4th order Runge-Kutta integration"""
 
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 2))
-        for o in args:
+        for o in targets:
             a = a + np.array(o.compute_acceleration(self.x, self.y))
 
         k1x = self.vx
@@ -64,7 +64,7 @@ class Body:
 
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 2))
-        for o in args:
+        for o in targets:
             a += np.array(o.compute_acceleration(self.x + dt / 2 * k1x, self.y + dt / 2 * k1y))
 
         k2vx = a[0][0]
@@ -75,7 +75,7 @@ class Body:
 
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 2))
-        for o in args:
+        for o in targets:
             a += np.array(o.compute_acceleration(self.x + dt / 2 * k2x, self.y + dt / 2 * k2y))
 
         k3vx = a[0][0]
@@ -86,7 +86,7 @@ class Body:
 
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 2))
-        for o in args:
+        for o in targets:
             a += np.array(o.compute_acceleration(self.x + dt * k3x, self.y + dt * k3y))
 
         k4vx = a[0][0]
