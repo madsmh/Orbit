@@ -62,7 +62,7 @@ class Body:
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 3))
         for o in targets:
-            a = a + np.array(o.compute_acceleration(self.x, self.y), self.z)
+            a = a + np.array(o.compute_acceleration(self.x, self.y, self.z))
 
         k1x = self.vx
         k1y = self.vy
