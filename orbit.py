@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import celestial
 
-# Physical properties of the celestial bodies
+# Physical properties of the celestial bodies in SI units
 SUN_MASS = 1.989e30
 SUN_RADIUS = 695700000.0
 
@@ -48,6 +48,20 @@ SATURN_VY0 = -10180.0
 SATURN_MASS = 568.34e24
 SATURN_RADIUS = 7149200
 
+URANUS_X0 = -2741300000000.0
+URANUS_Y0 = 0.0
+URANUS_VX0 = 0.0
+URANUS_VY0 = -7110
+URANUS_MASS = 86.813e24
+URANUS_RADIUS = 24973000
+
+NEPTUNE_X0 = -4444450000000.0
+NEPTUNE_Y0 = 0.0
+NEPTUNE_VX0 = 0.0
+NEPTUNE_VY0 = -5500
+NEPTUNE_MASS = 102.413e24
+NEPTUNE_RADIUS = 24341000
+
 # Bodies
 sun = celestial.Body('Sun', 0, 0, 0, 0, SUN_MASS, SUN_RADIUS)
 earth = celestial.Body('Earth', EARTH_X0, EARTH_Y0, EARTH_VX0, EARTH_VY0, EARTH_MASS, EARTH_RADIUS)
@@ -56,15 +70,19 @@ mars = celestial.Body('Mars', MARS_X0, MARS_Y0, MARS_VX0, MARS_VY0, MARS_MASS, M
 venus = celestial.Body('Venus', VENUS_X0, VENUS_Y0, VENUS_VX0, VENUS_VY0, VENUS_MASS, VENUS_RADIUS)
 mercury = celestial.Body('Mercury', MERCURY_X0, MERCURY_Y0, MERCURY_VX0, MARS_VY0, MERCURY_MASS, MERCURY_RADIUS)
 saturn = celestial.Body('Saturn', SATURN_X0, SATURN_Y0, SATURN_VX0, SATURN_VY0, SATURN_MASS, SATURN_RADIUS)
+uranus = celestial.Body('Uranus', URANUS_X0, URANUS_Y0, URANUS_VX0, URANUS_VY0, URANUS_MASS, URANUS_RADIUS)
+neptune = celestial.Body('Neptune', NEPTUNE_X0, NEPTUNE_Y0, NEPTUNE_VX0, NEPTUNE_VY0, NEPTUNE_MASS, NEPTUNE_RADIUS)
 
 # Arrays of Bodies
-sun_array = [mercury, earth, jupiter, mars, venus, saturn]
-earth_array = [sun, jupiter, mars, venus, mercury, saturn]
-jupiter_array = [sun, earth, mars, venus, mercury, saturn]
-mars_array = [sun, earth, jupiter, venus, mercury, saturn]
-venus_array = [sun, earth, jupiter, mars, mercury, saturn]
-mercury_array = [sun, earth, jupiter, mars, venus, saturn]
-saturn_array = [sun, earth, jupiter, mars, venus, mercury]
+sun_array = [mercury, earth, jupiter, mars, venus, saturn, uranus, neptune]
+earth_array = [sun, jupiter, mars, venus, mercury, saturn, uranus, neptune]
+jupiter_array = [sun, earth, mars, venus, mercury, saturn, uranus, neptune]
+mars_array = [sun, earth, jupiter, venus, mercury, saturn, uranus, neptune]
+venus_array = [sun, earth, jupiter, mars, mercury, saturn, uranus, neptune]
+mercury_array = [sun, earth, jupiter, mars, venus, saturn, uranus, neptune]
+saturn_array = [sun, earth, jupiter, mars, venus, mercury, uranus, neptune]
+uranus_array = [sun, earth, jupiter, mars, venus, mercury, saturn, neptune]
+neptune_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus]
 
 # Number of coordinate pairs
 n = 8*600
@@ -80,6 +98,8 @@ trajectory_jupiter = np.zeros(shape=(n, 2))
 trajectory_mercury = np.zeros(shape=(n, 2))
 trajectory_sun = np.zeros(shape=(n, 2))
 trajectory_saturn = np.zeros(shape=(n, 2))
+trajectory_uranus = np.zeros(shape=(n, 2))
+trajectory_neptune = np.zeros(shape=(n, 2))
 
 
 # Generate coordinates
@@ -106,6 +126,12 @@ def gen_coords():
         trajectory_saturn[i][0] = saturn.x
         trajectory_saturn[i][1] = saturn.y
 
+        trajectory_uranus[i][0] = uranus.x
+        trajectory_uranus[i][1] = uranus.y
+
+        trajectory_neptune[i][0] = neptune.x
+        trajectory_neptune[i][1] = neptune.y
+
         earth.step(dt, earth_array)
         mars.step(dt, mars_array)
         venus.step(dt, venus_array)
@@ -113,6 +139,8 @@ def gen_coords():
         mercury.step(dt, mercury_array)
         sun.step(dt, sun_array)
         saturn.step(dt, saturn_array)
+        uranus.step(dt, uranus_array)
+        neptune.step(dt, neptune_array)
 
 gen_coords()
 
@@ -124,6 +152,8 @@ x_jupiter, y_jupiter = trajectory_jupiter.T
 x_mercury, y_mercury = trajectory_mercury.T
 x_sun, y_sun = trajectory_sun.T
 x_saturn, y_saturn = trajectory_saturn.T
+x_uranus, y_uanus = trajectory_uranus.T
+x_neptune, y_neptune = trajectory_neptune.T
 
 plt.axes().set_aspect('equal', 'datalim')
 
@@ -134,6 +164,8 @@ plt.plot(x_jupiter, y_jupiter, 'k', linewidth=0.5)
 plt.plot(x_mercury, y_mercury, 'k', linewidth=0.5)
 plt.plot(x_sun, y_sun, 'k')
 plt.plot(x_saturn, y_saturn, 'b', linewidth=0.5)
+plt.plot(x_uranus, y_uanus, 'k', linewidth=0.5)
+plt.plot(x_neptune, y_neptune, 'r', linewidth=0.5)
 plt.show()
 
 # phi = np.linspace(0.0, 2*np.pi, 100)
