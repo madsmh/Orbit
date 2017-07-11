@@ -5,9 +5,10 @@ def readdata(planet):
     path = 'data/' + planet + '.csv'
     with open(path) as csvfile:
         datareader = csv.reader(csvfile, delimiter=',', skipinitialspace=True)
-        next(datareader)
+        headers=next(datareader)
+        data.append(headers[2:8])
         for row in datareader:
-            # Convert srings to floats and to m/s and m.
+            #Convert srings to floats and to m/s and m.
             floatrow = [float(i)*1000 for i in row[2:8]]
             data.append(floatrow)
     return data

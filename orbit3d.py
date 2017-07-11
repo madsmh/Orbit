@@ -1,6 +1,6 @@
 import numpy as np
-# import matplotlib as mpl
-# from mpl_toolkits.mplot3d import Axes3D
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import celestial3d
 import read_horizon
@@ -49,15 +49,15 @@ mars_data = read_horizon.readdata('mars')
 
 # Bodies
 sun = celestial3d.Body('Sun', 0, 0, 0, 0, 0, 0, SUN_MASS, SUN_RADIUS)
-earth = celestial3d.Body('Earth', *earth_data[0][:], EARTH_MASS, EARTH_RADIUS)
-jupiter = celestial3d.Body('Jupiter', *jupiter_data[0][:], JUPITER_MASS, JUPUTER_RADIUS)
-mars = celestial3d.Body('Mars', *mars_data[0][:], MARS_MASS, MARS_RADIUS)
-venus = celestial3d.Body('Venus', *venus_data[0][:], VENUS_MASS, VENUS_RADIUS)
-mercury = celestial3d.Body('Mercury', *mercury_data[0][:], MERCURY_MASS, MERCURY_RADIUS)
-saturn = celestial3d.Body('Saturn', *saturn_data[0][:], SATURN_MASS, SATURN_RADIUS)
-uranus = celestial3d.Body('Uranus', *uranus_data[0][:], URANUS_MASS, URANUS_RADIUS)
-neptune = celestial3d.Body('Neptune', *neptune_data[0][:], NEPTUNE_MASS, NEPTUNE_RADIUS)
-pluto = celestial3d.Body('Pluto', *pluto_data[0][:], PLUTO_MASS, PLUTO_RADIUS)
+earth = celestial3d.Body('Earth', *earth_data[1][:], EARTH_MASS, EARTH_RADIUS)
+jupiter = celestial3d.Body('Jupiter', *jupiter_data[1][:], JUPITER_MASS, JUPUTER_RADIUS)
+mars = celestial3d.Body('Mars', *mars_data[1][:], MARS_MASS, MARS_RADIUS)
+venus = celestial3d.Body('Venus', *venus_data[1][:], VENUS_MASS, VENUS_RADIUS)
+mercury = celestial3d.Body('Mercury', *mercury_data[1][:], MERCURY_MASS, MERCURY_RADIUS)
+saturn = celestial3d.Body('Saturn', *saturn_data[1][:], SATURN_MASS, SATURN_RADIUS)
+uranus = celestial3d.Body('Uranus', *uranus_data[1][:], URANUS_MASS, URANUS_RADIUS)
+neptune = celestial3d.Body('Neptune', *neptune_data[1][:], NEPTUNE_MASS, NEPTUNE_RADIUS)
+pluto = celestial3d.Body('Pluto', *pluto_data[1][:], PLUTO_MASS, PLUTO_RADIUS)
 
 
 # Arrays of Bodies
@@ -71,6 +71,16 @@ saturn_array = [sun, earth, jupiter, mars, venus, mercury, uranus, neptune, plut
 uranus_array = [sun, earth, jupiter, mars, venus, mercury, saturn, neptune, pluto]
 neptune_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, pluto]
 pluto_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, neptune]
+
+# earth_array = [sun]
+# jupiter_array = [sun]
+# mars_array = [sun]
+# venus_array = [sun]
+# mercury_array = [sun]
+# saturn_array = [sun]
+# uranus_array = [sun]
+# neptune_array = [sun]
+# pluto_array = [sun]
 
 # Number of coordinate pairs
 n = 16*687
@@ -159,18 +169,21 @@ x_saturn, y_saturn, z_saturn = trajectory_saturn.T
 x_uranus, y_uanus, z_uranus = trajectory_uranus.T
 x_neptune, y_neptune, z_neptune = trajectory_neptune.T
 
-# TODO Write the 3D plotting for the planets and the sun.
-
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 ax.plot(x_earth, y_earth, z_earth, label=earth.name)
 ax.plot(x_mars, y_mars, z_mars, label=mars.name)
-# ax.plot(x_mercury, y_mercury, z_mercury, label=mercury.name)
+ax.plot(x_mercury, y_mercury, z_mercury, label=mercury.name)
 ax.plot(x_venus, y_venus, z_venus, label=venus.name)
-lim = 1.5e11
 
-ax.auto_scale_xyz([-lim, lim], [-lim, lim], [-lim, lim])
+
+xylim = 1.5e11
+zlim = 1.5e10
+ax.set_xlabel('X axis')
+ax.set_ylabel('Y axis')
+ax.set_zlabel('Z axis')
+ax.auto_scale_xyz([-xylim, xylim], [-xylim, xylim], [-zlim, zlim])
 
 ax.legend()
 plt.show()
