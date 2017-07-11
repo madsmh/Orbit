@@ -101,8 +101,8 @@ trajectory_neptune = np.zeros(shape=(n, 3))
 trajectory_pluto = np.zeros(shape=(n, 3))
 
 
-# Generate coordinates
 def gen_coords():
+    # Generate coordinates and save to file
     for i in range(n):
         trajectory_earth[i][0] = earth.x
         trajectory_earth[i][1] = earth.y
@@ -155,38 +155,49 @@ def gen_coords():
         neptune.step(dt, neptune_array)
         pluto.step(dt, pluto_array)
 
-gen_coords()
+    np.savetxt("trajectories/earth.gz", trajectory_earth, delimiter=',')
+    np.savetxt("trajectories/mars.gz", trajectory_mars, delimiter=',')
+    np.savetxt("trajectories/venus.gz", trajectory_venus, delimiter=',')
+    np.savetxt("trajectories/jupiter.gz", trajectory_jupiter, delimiter=',')
+    np.savetxt("trajectories/mercury.gz", trajectory_mercury, delimiter=',')
+    np.savetxt("trajectories/sun.gz", trajectory_sun, delimiter=',')
+    np.savetxt("trajectories/saturn.gz", trajectory_saturn, delimiter=',')
+    np.savetxt("trajectories/uranus.gz", trajectory_uranus, delimiter=',')
+    np.savetxt("trajectories/neptune.gz", trajectory_neptune, delimiter=',')
+    np.savetxt("trajectories/pluto.gz", trajectory_pluto, delimiter=',')
 
 # TODO Create x, y, z-coordinates for pluto
-# Coordinates of the planets
-x_earth, y_earth, z_earth = trajectory_earth.T
-x_mars, y_mars, z_mars = trajectory_mars.T
-x_venus, y_venus, z_venus = trajectory_venus.T
-x_jupiter, y_jupiter, z_jupiter = trajectory_jupiter.T
-x_mercury, y_mercury, z_mercury = trajectory_mercury.T
-x_sun, y_sun, z_sun = trajectory_sun.T
-x_saturn, y_saturn, z_saturn = trajectory_saturn.T
-x_uranus, y_uanus, z_uranus = trajectory_uranus.T
-x_neptune, y_neptune, z_neptune = trajectory_neptune.T
+def plot_planets():
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+    # Coordinates of the planets
+    x_earth, y_earth, z_earth = trajectory_earth.T
+    x_mars, y_mars, z_mars = trajectory_mars.T
+    x_venus, y_venus, z_venus = trajectory_venus.T
+    x_jupiter, y_jupiter, z_jupiter = trajectory_jupiter.T
+    x_mercury, y_mercury, z_mercury = trajectory_mercury.T
+    x_sun, y_sun, z_sun = trajectory_sun.T
+    x_saturn, y_saturn, z_saturn = trajectory_saturn.T
+    x_uranus, y_uanus, z_uranus = trajectory_uranus.T
+    x_neptune, y_neptune, z_neptune = trajectory_neptune.T
 
-ax.plot(x_earth, y_earth, z_earth, label=earth.name)
-ax.plot(x_mars, y_mars, z_mars, label=mars.name)
-ax.plot(x_mercury, y_mercury, z_mercury, label=mercury.name)
-ax.plot(x_venus, y_venus, z_venus, label=venus.name)
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    ax.plot(x_earth, y_earth, z_earth, label=earth.name)
+    ax.plot(x_mars, y_mars, z_mars, label=mars.name)
+    ax.plot(x_mercury, y_mercury, z_mercury, label=mercury.name)
+    ax.plot(x_venus, y_venus, z_venus, label=venus.name)
 
 
-xylim = 1.5e11
-zlim = 1.5e10
-ax.set_xlabel('X axis')
-ax.set_ylabel('Y axis')
-ax.set_zlabel('Z axis')
-ax.auto_scale_xyz([-xylim, xylim], [-xylim, xylim], [-zlim, zlim])
+    xylim = 1.5e11
+    zlim = 1.5e10
+    ax.set_xlabel('X axis')
+    ax.set_ylabel('Y axis')
+    ax.set_zlabel('Z axis')
+    ax.auto_scale_xyz([-xylim, xylim], [-xylim, xylim], [-zlim, zlim])
 
-ax.legend()
-plt.show()
+    ax.legend()
+    plt.show()
 
 # plt.plot(x_mars, y_mars, 'r', linewidth=0.5)
 # plt.plot(x_venus, y_venus, 'b', linewidth=0.5)
