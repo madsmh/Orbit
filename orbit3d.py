@@ -88,21 +88,22 @@ n = 16*687
 # Time interval in seconds (1/8 Earth day)
 dt = 86400.0/16
 
-# NumPy arrays for coordinates
-trajectory_earth = np.zeros(shape=(n, 3))
-trajectory_mars = np.zeros(shape=(n, 3))
-trajectory_venus = np.zeros(shape=(n, 3))
-trajectory_jupiter = np.zeros(shape=(n, 3))
-trajectory_mercury = np.zeros(shape=(n, 3))
-trajectory_sun = np.zeros(shape=(n, 3))
-trajectory_saturn = np.zeros(shape=(n, 3))
-trajectory_uranus = np.zeros(shape=(n, 3))
-trajectory_neptune = np.zeros(shape=(n, 3))
-trajectory_pluto = np.zeros(shape=(n, 3))
-
 
 def gen_coords():
     # Generate coordinates and save to file
+
+    # NumPy arrays for coordinates
+    trajectory_earth = np.zeros(shape=(n, 3))
+    trajectory_mars = np.zeros(shape=(n, 3))
+    trajectory_venus = np.zeros(shape=(n, 3))
+    trajectory_jupiter = np.zeros(shape=(n, 3))
+    trajectory_mercury = np.zeros(shape=(n, 3))
+    trajectory_sun = np.zeros(shape=(n, 3))
+    trajectory_saturn = np.zeros(shape=(n, 3))
+    trajectory_uranus = np.zeros(shape=(n, 3))
+    trajectory_neptune = np.zeros(shape=(n, 3))
+    trajectory_pluto = np.zeros(shape=(n, 3))
+
     for i in range(n):
         trajectory_earth[i][0] = earth.x
         trajectory_earth[i][1] = earth.y
@@ -166,31 +167,47 @@ def gen_coords():
     np.savetxt("trajectories/neptune.gz", trajectory_neptune, delimiter=',')
     np.savetxt("trajectories/pluto.gz", trajectory_pluto, delimiter=',')
 
-# TODO Create x, y, z-coordinates for pluto
-def plot_planets():
 
-    # Coordinates of the planets
-    x_earth, y_earth, z_earth = trajectory_earth.T
-    x_mars, y_mars, z_mars = trajectory_mars.T
-    x_venus, y_venus, z_venus = trajectory_venus.T
-    x_jupiter, y_jupiter, z_jupiter = trajectory_jupiter.T
-    x_mercury, y_mercury, z_mercury = trajectory_mercury.T
-    x_sun, y_sun, z_sun = trajectory_sun.T
-    x_saturn, y_saturn, z_saturn = trajectory_saturn.T
-    x_uranus, y_uanus, z_uranus = trajectory_uranus.T
-    x_neptune, y_neptune, z_neptune = trajectory_neptune.T
+def plot_planets():
+    # Load coordinate data from files
+    trajectory_earth = np.loadtxt("trajectories/earth.gz", float, delimiter=',')
+    trajectory_mars = np.loadtxt("trajectories/mars.gz", float, delimiter=',')
+    trajectory_venus = np.loadtxt("trajectories/venus.gz", float, delimiter=',')
+    # trajectory_jupiter = np.loadtxt("trajectories/jupiter.gz", float, delimiter=',')
+    trajectory_mercury = np.loadtxt("trajectories/mercury.gz", float, delimiter=',')
+    trajectory_sun = np.loadtxt("trajectories/sun.gz", float, delimiter=',')
+    # trajectory_saturn = np.loadtxt("trajectories/saturn.gz", float, delimiter=',')
+    # trajectory_uranus = np.loadtxt("trajectories/uranus.gz", float, delimiter=',')
+    # trajectory_neptune = np.loadtxt("trajectories/neptune.gz", float, delimiter=',')
+    # trajectory_pluto = np.loadtxt("trajectories/pluto.gz", float, delimiter=',')
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
-    ax.plot(x_earth, y_earth, z_earth, label=earth.name)
-    ax.plot(x_mars, y_mars, z_mars, label=mars.name)
-    ax.plot(x_mercury, y_mercury, z_mercury, label=mercury.name)
-    ax.plot(x_venus, y_venus, z_venus, label=venus.name)
+    # Plot inner planets
+    ax.plot(trajectory_earth[:, 0], trajectory_earth[:, 1], trajectory_earth[:, 2], label=earth.name)
+    ax.plot(trajectory_mars[:, 0], trajectory_mars[:, 1], trajectory_mars[:, 2], label=mars.name)
+    ax.plot(trajectory_mercury[:, 0], trajectory_mercury[:, 1], trajectory_mercury[:, 2], label=mercury.name)
+    ax.plot(trajectory_venus[:, 0], trajectory_venus[:, 1], trajectory_venus[:, 2], label=venus.name)
 
+    # Sphere
+    def plot_sphere(x0, y0, z0, body, col):
+        """Plot a sphere at x0, y0, z0 representing body with color col"""
 
-    xylim = 1.5e11
-    zlim = 1.5e10
+        u = np.linspace(0, 2 * np.pi, 20)
+        v = np.linspace(0, np.pi, 20)
+        x = x0 + body.radius * np.outer(np.cos(u), np.sin(v))
+        y = y0 + body.radius * np.outer(np.sin(u), np.sin(v))
+        z = z0 + body.radius * np.outer(np.ones(np.size(u)), np.cos(v))
+
+        ax.plot_surface(x, y, z, color=col)
+
+    # Plot the Sun
+    plot_sphere(trajectory_sun[-1][0], trajectory_sun[-1][1], trajectory_sun[-1][2], sun, 'y')
+
+    xylim = 1e11
+    zlim = 1e11
+
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
     ax.set_zlabel('Z axis')
@@ -199,6 +216,7 @@ def plot_planets():
     ax.legend()
     plt.show()
 
+plot_planets()
 # plt.plot(x_mars, y_mars, 'r', linewidth=0.5)
 # plt.plot(x_venus, y_venus, 'b', linewidth=0.5)
 # plt.plot(x_jupiter, y_jupiter, 'k', linewidth=0.5)
