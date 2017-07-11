@@ -45,12 +45,12 @@ class Body:
         """Computes the gravitational acceleration due to self at position (x, y) (m)"""
 
         # Acceleration in the x-direction (m/s^2)
-        ax = self.G*self.M/((self.x-x)**2 + (self.y-y)**2 + (self.z-z)**2) * \
-            (self.x-x)/np.sqrt((self.x-x)**2 + (self.y-y)**2 + (self.z-y)**2)
+        ax = self.G * self.M / ((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2) * \
+             (self.x - x) / np.sqrt((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2)
 
         # Acceleration in the y-direction (m/s^2)
-        ay = self.G*self.M/((self.x-x)**2 + (self.y-y)**2 + (self.z-z)**2) * \
-            (self.y-y)/np.sqrt((self.x-x)**2 + (self.y-y)**2 + (self.z-z)**2)
+        ay = self.G * self.M / ((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2) * \
+             (self.y - y) / np.sqrt((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2)
 
         # Acceleration in the z-direction (ms/s^2)
         az = self.G * self.M / ((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2) * \
