@@ -7,31 +7,31 @@ import read_horizon
 
 
 # Physical properties of the celestial bodies in SI units
-SUN_MASS = 1.989e30
+SUN_MASS = 1.98855e30
 SUN_RADIUS = 695700000.0
 
-EARTH_MASS = 5.972e24
+EARTH_MASS = 5.97219e24
 EARTH_RADIUS = 6371000.0
 
-MERCURY_MASS = 3.3011e23
+MERCURY_MASS = 3.302e23
 MERCURY_RADIUS = 2439700
 
-VENUS_MASS = 4.8675e24
+VENUS_MASS = 48.685e23
 VENUS_RADIUS = 6051800.0
 
 MARS_MASS = 6.4185e23
 MARS_RADIUS = 3389500.0
 
-JUPITER_MASS = 1898.19e24
+JUPITER_MASS = 1898.13e24
 JUPUTER_RADIUS = 71492000.0
 
-SATURN_MASS = 568.34e24
+SATURN_MASS = 5.68319e26
 SATURN_RADIUS = 7149200
 
-URANUS_MASS = 86.813e24
+URANUS_MASS = 86.8103e24
 URANUS_RADIUS = 24973000
 
-NEPTUNE_MASS = 102.413e24
+NEPTUNE_MASS = 102.41e24
 NEPTUNE_RADIUS = 24341000
 
 PLUTO_MASS = 1.307e22
@@ -49,15 +49,15 @@ mars_data = read_horizon.readdata('mars')
 
 # Bodies
 sun = celestial3d.Body('Sun', 0, 0, 0, 0, 0, 0, SUN_MASS, SUN_RADIUS)
-earth = celestial3d.Body('Earth', *earth_data[1][:], EARTH_MASS, EARTH_RADIUS)
-jupiter = celestial3d.Body('Jupiter', *jupiter_data[1][:], JUPITER_MASS, JUPUTER_RADIUS)
-mars = celestial3d.Body('Mars', *mars_data[1][:], MARS_MASS, MARS_RADIUS)
-venus = celestial3d.Body('Venus', *venus_data[1][:], VENUS_MASS, VENUS_RADIUS)
-mercury = celestial3d.Body('Mercury', *mercury_data[1][:], MERCURY_MASS, MERCURY_RADIUS)
-saturn = celestial3d.Body('Saturn', *saturn_data[1][:], SATURN_MASS, SATURN_RADIUS)
-uranus = celestial3d.Body('Uranus', *uranus_data[1][:], URANUS_MASS, URANUS_RADIUS)
-neptune = celestial3d.Body('Neptune', *neptune_data[1][:], NEPTUNE_MASS, NEPTUNE_RADIUS)
-pluto = celestial3d.Body('Pluto', *pluto_data[1][:], PLUTO_MASS, PLUTO_RADIUS)
+earth = celestial3d.Body('Earth', *earth_data[0][:], EARTH_MASS, EARTH_RADIUS)
+jupiter = celestial3d.Body('Jupiter', *jupiter_data[0][:], JUPITER_MASS, JUPUTER_RADIUS)
+mars = celestial3d.Body('Mars', *mars_data[0][:], MARS_MASS, MARS_RADIUS)
+venus = celestial3d.Body('Venus', *venus_data[0][:], VENUS_MASS, VENUS_RADIUS)
+mercury = celestial3d.Body('Mercury', *mercury_data[0][:], MERCURY_MASS, MERCURY_RADIUS)
+saturn = celestial3d.Body('Saturn', *saturn_data[0][:], SATURN_MASS, SATURN_RADIUS)
+uranus = celestial3d.Body('Uranus', *uranus_data[0][:], URANUS_MASS, URANUS_RADIUS)
+neptune = celestial3d.Body('Neptune', *neptune_data[0][:], NEPTUNE_MASS, NEPTUNE_RADIUS)
+pluto = celestial3d.Body('Pluto', *pluto_data[0][:], PLUTO_MASS, PLUTO_RADIUS)
 
 
 # Arrays of Bodies
@@ -72,22 +72,24 @@ uranus_array = [sun, earth, jupiter, mars, venus, mercury, saturn, neptune, plut
 neptune_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, pluto]
 pluto_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, neptune]
 
-# earth_array = [sun]
-# jupiter_array = [sun]
-# mars_array = [sun]
-# venus_array = [sun]
-# mercury_array = [sun]
-# saturn_array = [sun]
-# uranus_array = [sun]
-# neptune_array = [sun]
-# pluto_array = [sun]
-
 # Number of coordinate pairs
-n = 16*687
+n = 64*400
 
-# Time interval in seconds (1/8 Earth day)
-dt = 86400.0/16
+# Time interval in seconds (1/64 Earth solar day)
+dt = 1440*60/64
 
+
+def check_mars():
+    # Read the trajetory of Mars from file
+
+    trajectory_mars = np.loadtxt("trajectories/mars.gz", float, delimiter=',')
+    trajectory_earth = np.loadtxt("trajectories/earth.gz", float, delimiter=',')
+
+    mars_nasa = np.array(mars_data)
+    earth_nasa = np.array(earth_data)
+
+    print(np.abs(trajectory_earth[:64:64*31, :] - earth_nasa[:, 0:3]))
+    #print(np.abs(trajectory_mars[:len(mars_nasa), :]-mars_nasa[:, 0:3]))
 
 def gen_coords():
     # Generate coordinates and save to file
@@ -215,36 +217,6 @@ def plot_planets():
 
     ax.legend()
     plt.show()
-
+gen_coords()
+check_mars()
 plot_planets()
-# plt.plot(x_mars, y_mars, 'r', linewidth=0.5)
-# plt.plot(x_venus, y_venus, 'b', linewidth=0.5)
-# plt.plot(x_jupiter, y_jupiter, 'k', linewidth=0.5)
-# plt.plot(x_mercury, y_mercury, 'k', linewidth=0.5)
-# plt.plot(x_sun, y_sun, 'k')
-# plt.plot(x_saturn, y_saturn, 'b', linewidth=0.5)
-# plt.plot(x_uranus, y_uanus, 'k', linewidth=0.5)
-# plt.plot(x_neptune, y_neptune, 'r', linewidth=0.5)
-#
-# # Draw circles representing Mars
-# x_line_mars = x_mars[na, :] + mars.radius * np.sin(phi[:, na])
-# y_line_mars = y_mars[na, :] + mars.radius * np.cos(phi[:, na])
-#
-# # Draw circles representing Venus
-# x_line_venus = x_venus[na, :] + venus.radius * np.sin(phi[:, na])
-# y_line_venus = y_venus[na, :] + venus.radius * np.cos(phi[:, na])
-#
-# # Draw circles representing Venus
-# x_line_jupiter = x_jupiter[na, :] + jupiter.radius * np.sin(phi[:, na])
-# y_line_jupiter = y_jupiter[na, :] + jupiter.radius * np.cos(phi[:, na])
-#
-# # Draw circle representing the Sun
-# x_line_sun = sun.radius * np.sin(phi[:, na])
-# y_line_sun = sun.radius * np.cos(phi[:, na])
-#
-#
-# plt.plot(x_line_earth, y_line_earth)
-# plt.plot(x_line_sun, y_line_sun)
-# plt.plot(x_line_mars, y_line_mars)
-# plt.plot(x_line_venus, y_line_venus)
-# plt.plot(x_line_jupiter, y_line_jupiter)
