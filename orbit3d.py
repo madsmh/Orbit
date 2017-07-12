@@ -4,7 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import celestial3d
 import read_horizon
-
+import os
 
 # Physical properties of the celestial bodies in SI units
 SUN_MASS = 1.98855e30
@@ -103,6 +103,8 @@ def check_mars():
 
 
 def gen_coords():
+    if not os.path.exists('trajectories/'):
+        os.makedirs('trajectories/')
     # Generate coordinates and save to file
 
     # NumPy arrays for coordinates
@@ -229,5 +231,5 @@ def plot_planets():
     ax.legend()
     plt.show()
 gen_coords()
-check_mars()
+# check_mars()
 plot_planets()
