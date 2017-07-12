@@ -43,18 +43,22 @@ class Body:
 
     def compute_acceleration(self, x, y, z):
         """Computes the gravitational acceleration due to self at position (x, y) (m)"""
+        # Deltas
+        delta_x = self.x - x
+        delta_y = self.y - y
+        delta_z = self.z - z
 
         # Acceleration in the x-direction (m/s^2)
-        ax = self.G * self.M / ((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2) * \
-             (self.x - x) / np.sqrt((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2)
+        ax = self.G * self.M / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
+             delta_x / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
 
         # Acceleration in the y-direction (m/s^2)
-        ay = self.G * self.M / ((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2) * \
-             (self.y - y) / np.sqrt((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2)
+        ay = self.G * self.M / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
+             delta_y / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
 
         # Acceleration in the z-direction (ms/s^2)
-        az = self.G * self.M / ((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2) * \
-            (self.z - z) / np.sqrt((self.x - x) ** 2 + (self.y - y) ** 2 + (self.z - z) ** 2)
+        az = self.G * self.M / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
+            delta_z / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
 
         return ax, ay, az
 
@@ -81,7 +85,8 @@ class Body:
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 3))
         for o in targets:
-            a += np.array(o.compute_acceleration(self.x + dt / 2 * k1x, self.y + dt / 2 * k1y,
+            a += np.array(o.compute_acceleration(self.x + dt / 2 * k1x,
+                                                 self.y + dt / 2 * k1y,
                                                  self.z + dt / 2 * k1z))
 
         k2vx = a[0][0]
@@ -95,7 +100,8 @@ class Body:
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 3))
         for o in targets:
-            a += np.array(o.compute_acceleration(self.x + dt / 2 * k2x, self.y + dt / 2 * k2y,
+            a += np.array(o.compute_acceleration(self.x + dt / 2 * k2x,
+                                                 self.y + dt / 2 * k2y,
                                                  self.z + dt / 2 * k2z))
 
         k3vx = a[0][0]
@@ -109,7 +115,8 @@ class Body:
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 3))
         for o in targets:
-            a += np.array(o.compute_acceleration(self.x + dt * k3x, self.y + dt * k3y,
+            a += np.array(o.compute_acceleration(self.x + dt * k3x,
+                                                 self.y + dt * k3y,
                                                  self.z + dt * k3z))
 
         k4vx = a[0][0]
