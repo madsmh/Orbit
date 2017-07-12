@@ -6,11 +6,10 @@ import numpy as np
 class Body:
     """A celestial body class, with all initial values in SI units """
 
-    def __init__(self, name, x0, y0, z0, vx0, vy0, vz0, mass, radius):
+    def __init__(self, name, x0, y0, z0, vx0, vy0, vz0, GM, radius):
 
-        # Constants of nature
-        # Universal constant of gravitation
-        self.G = 6.67408e-11
+        # Gravitational parameter
+        self.GM = GM
 
         # Name of the body (string)
         self.name = name
@@ -35,9 +34,6 @@ class Body:
         self.vy = self.vy0
         self.vz = self.vz0
 
-        # Mass of the body (kg)
-        self.M = mass
-
         # Radius of the body (m)
         self.radius = radius
 
@@ -49,15 +45,15 @@ class Body:
         delta_z = self.z - z
 
         # Acceleration in the x-direction (m/s^2)
-        ax = self.G * self.M / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
+        ax = self.GM / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
              delta_x / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
 
         # Acceleration in the y-direction (m/s^2)
-        ay = self.G * self.M / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
+        ay = self.GM / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
              delta_y / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
 
         # Acceleration in the z-direction (ms/s^2)
-        az = self.G * self.M / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
+        az = self.GM / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
             delta_z / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
 
         return ax, ay, az
