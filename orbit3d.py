@@ -8,33 +8,43 @@ import read_horizon
 
 # Physical properties of the celestial bodies in SI units
 SUN_MASS = 1.98855e30
+SUN_GM = 1.32712440018e20
 SUN_RADIUS = 695700000.0
 
 EARTH_MASS = 5.97219e24
+EARTH_GM = 398600.440 * 10 ** 9
 EARTH_RADIUS = 6371000.0
 
 MERCURY_MASS = 3.302e23
+MERCURY_GM = 22032.09 * 10 ** 9
 MERCURY_RADIUS = 2439700
 
 VENUS_MASS = 48.685e23
+VENUS_GM = 324858.63 * 10 ** 9
 VENUS_RADIUS = 6051800.0
 
 MARS_MASS = 6.4185e23
+MARS_GM = 42828.3 * 10 ** 9
 MARS_RADIUS = 3389500.0
 
 JUPITER_MASS = 1898.13e24
+JUPITER_GM = 126686511 * 10 ** 9
 JUPUTER_RADIUS = 71492000.0
 
 SATURN_MASS = 5.68319e26
+SATURN_GM = 37931207.8 * 10 ** 9
 SATURN_RADIUS = 7149200
 
 URANUS_MASS = 86.8103e24
+URANUS_GM = 5793966 * 10 ** 9
 URANUS_RADIUS = 24973000
 
 NEPTUNE_MASS = 102.41e24
+NEPTUNE_GM = 6835107 * 10 ** 9
 NEPTUNE_RADIUS = 24341000
 
 PLUTO_MASS = 1.307e22
+PLUTO_GM = 872.4 * 10 ** 9
 PLUTO_RADIUS = 1195e3
 
 earth_data = read_horizon.readdata('earth')
@@ -48,16 +58,16 @@ pluto_data = read_horizon.readdata('pluto')
 mars_data = read_horizon.readdata('mars')
 
 # Bodies
-sun = celestial3d.Body('Sun', 0, 0, 0, 0, 0, 0, SUN_MASS, SUN_RADIUS)
-earth = celestial3d.Body('Earth', *earth_data[0][:], EARTH_MASS, EARTH_RADIUS)
-jupiter = celestial3d.Body('Jupiter', *jupiter_data[0][:], JUPITER_MASS, JUPUTER_RADIUS)
-mars = celestial3d.Body('Mars', *mars_data[0][:], MARS_MASS, MARS_RADIUS)
-venus = celestial3d.Body('Venus', *venus_data[0][:], VENUS_MASS, VENUS_RADIUS)
-mercury = celestial3d.Body('Mercury', *mercury_data[0][:], MERCURY_MASS, MERCURY_RADIUS)
-saturn = celestial3d.Body('Saturn', *saturn_data[0][:], SATURN_MASS, SATURN_RADIUS)
-uranus = celestial3d.Body('Uranus', *uranus_data[0][:], URANUS_MASS, URANUS_RADIUS)
-neptune = celestial3d.Body('Neptune', *neptune_data[0][:], NEPTUNE_MASS, NEPTUNE_RADIUS)
-pluto = celestial3d.Body('Pluto', *pluto_data[0][:], PLUTO_MASS, PLUTO_RADIUS)
+sun = celestial3d.Body('Sun', 0, 0, 0, 0, 0, 0, SUN_GM, SUN_RADIUS)
+earth = celestial3d.Body('Earth', *earth_data[0][:], EARTH_GM, EARTH_RADIUS)
+jupiter = celestial3d.Body('Jupiter', *jupiter_data[0][:], JUPITER_GM, JUPUTER_RADIUS)
+mars = celestial3d.Body('Mars', *mars_data[0][:], MARS_GM, MARS_RADIUS)
+venus = celestial3d.Body('Venus', *venus_data[0][:], VENUS_GM, VENUS_RADIUS)
+mercury = celestial3d.Body('Mercury', *mercury_data[0][:], MERCURY_GM, MERCURY_RADIUS)
+saturn = celestial3d.Body('Saturn', *saturn_data[0][:], SATURN_GM, SATURN_RADIUS)
+uranus = celestial3d.Body('Uranus', *uranus_data[0][:], URANUS_GM, URANUS_RADIUS)
+neptune = celestial3d.Body('Neptune', *neptune_data[0][:], NEPTUNE_GM, NEPTUNE_RADIUS)
+pluto = celestial3d.Body('Pluto', *pluto_data[0][:], PLUTO_GM, PLUTO_RADIUS)
 
 
 # Arrays of Bodies
@@ -89,7 +99,8 @@ def check_mars():
     earth_nasa = np.array(earth_data)
 
     print(np.abs(trajectory_earth[:64:64*31, :] - earth_nasa[:, 0:3]))
-    #print(np.abs(trajectory_mars[:len(mars_nasa), :]-mars_nasa[:, 0:3]))
+    # print(np.abs(trajectory_mars[:len(mars_nasa), :]-mars_nasa[:, 0:3]))
+
 
 def gen_coords():
     # Generate coordinates and save to file
@@ -152,7 +163,7 @@ def gen_coords():
         venus.step(dt, venus_array)
         jupiter.step(dt, jupiter_array)
         mercury.step(dt, mercury_array)
-        sun.step(dt, sun_array)
+        # sun.step(dt, sun_array)
         saturn.step(dt, saturn_array)
         uranus.step(dt, uranus_array)
         neptune.step(dt, neptune_array)
