@@ -35,6 +35,12 @@ class Body:
         # Radius of the body (m)
         self.radius = radius
 
+        # Sorage of last integration results
+        self.last_coords = np.zeros(shape=(2, 3))
+
+        # Integration counter
+        self.i = 0
+
     def compute_acceleration(self, x, y, z):
         """Computes the gravitational acceleration due to self at position (x, y) (m)"""
         # Deltas
@@ -59,75 +65,69 @@ class Body:
         az = self.GM / (delta_x2 + delta_y2 + delta_z2) * \
             delta_z / np.sqrt(delta_x2 + delta_y2 + delta_z2)
 
-        return ax, ay, az
+        return np.array([ax, ay, az])
 
     def step(self, dt, targets):
-        """RK4-integration"""
-        # TODO Replace RK4 integrator with a symplectic integrator
-        # Acceleration due to targets (NumPy array)
-        a = np.zeros(shape=(1, 3))
-        for o in targets:
-            a = a + np.array(o.compute_acceleration(self.x, self.y, self.z))
+        """Symplectic integrator"""
 
-        k1x = self.vx
-        k1y = self.vy
-        k1z = self.vz
+        # dt squared
+        dt2 = dt ** 2
+        x0 = np.array([self.x0, self.y0, self.z0])
+        v0 = np.array([self.vx0, self.vy0, self.vz0])
 
-        k1vx = a[0][0]
-        k1vy = a[0][1]
-        k1vz = a[0][2]
+        if self.i == 0:
 
-        k2x = self.vx + dt / 2 * k1vx
-        k2y = self.vy + dt / 2 * k1vy
-        k2z = self.vz + dt / 2 * k1vz
+            self.x = x0[0]
+            self.y = x0[1]
+            self.z = x0[2]
 
-        # Acceleration due to targets (NumPy array)
-        a = np.zeros(shape=(1, 3))
-        for o in targets:
-            a += np.array(o.compute_acceleration(self.x + dt / 2 * k1x,
-                                                 self.y + dt / 2 * k1y,
-                                                 self.z + dt / 2 * k1z))
+            self.last_coords[0][:] = x0
 
-        k2vx = a[0][0]
-        k2vy = a[0][1]
-        k2vz = a[0][2]
+        elif self.i == 1:
 
-        k3x = self.vx + dt / 2 * k2vx
-        k3y = self.vy + dt / 2 * k2vy
-        k3z = self.vz + dt / 2 * k2vz
+            a = np.zeros(shape=3, dtype=float)
+            for o in targets:
+                a += o.compute_acceleration(x0[0], x0[1], x0[2])
 
-        # Acceleration due to targets (NumPy array)
-        a = np.zeros(shape=(1, 3))
-        for o in targets:
-            a += np.array(o.compute_acceleration(self.x + dt / 2 * k2x,
-                                                 self.y + dt / 2 * k2y,
-                                                 self.z + dt / 2 * k2z))
+            x1 = x0 + v0 * dt + 0.5 * dt2 * a
 
-        k3vx = a[0][0]
-        k3vy = a[0][1]
-        k3vz = a[0][2]
+            self.x = x1[0]
+            self.y = x1[1]
+            self.z = x1[2]
 
-        k4x = self.vx + dt * k3vx
-        k4y = self.vy + dt * k3vy
-        k4z = self.vz + dt * k3vz
+            self.last_coords[1][:] = x1
 
-        # Acceleration due to targets (NumPy array)
-        a = np.zeros(shape=(1, 3))
-        for o in targets:
-            a += np.array(o.compute_acceleration(self.x + dt * k3x,
-                                                 self.y + dt * k3y,
-                                                 self.z + dt * k3z))
+        elif self.i != 0 and self.i % 2 == 0:
+            xnminusone = self.last_coords[0][:]
+            xn = self.last_coords[1][:]
 
-        k4vx = a[0][0]
-        k4vy = a[0][1]
-        k4vz = a[0][2]
+            a = np.zeros(shape=3, dtype=float)
 
-        # Update position
-        self.x = self.x + dt / 6 * (k1x + 2 * k2x + 2 * k3x + k4x)
-        self.y = self.y + dt / 6 * (k1y + 2 * k2y + 2 * k3y + k4y)
-        self.z = self.z + dt / 6 * (k1z + 2 * k2z + 2 * k3z + k4z)
+            for o in targets:
+                a += o.compute_acceleration(xn[0], xn[1], xn[2])
 
-        # Update velocity
-        self.vx = self.vx + dt / 6 * (k1vx + 2 * k2vx + 2 * k3vx + k4vx)
-        self.vy = self.vy + dt / 6 * (k1vy + 2 * k2vy + 2 * k3vy + k4vy)
-        self.vz = self.vz + dt / 6 * (k1vz + 2 * k2vz + 2 * k3vz + k4vz)
+            xnplusone = 2 * xn - xnminusone + dt2 * a
+
+            self.x = xnplusone[0]
+            self.y = xnplusone[1]
+            self.z = xnplusone[2]
+
+            self.last_coords[0][:] = xnplusone
+        elif self.i != 1 and self.i % 2 != 0:
+            xnminusone = self.last_coords[1][:]
+            xn = self.last_coords[0][:]
+
+            a = np.zeros(shape=3, dtype=float)
+
+            for o in targets:
+                a += o.compute_acceleration(xn[0], xn[1], xn[2])
+
+            xnplusone = 2 * xn - xnminusone + dt2 * a
+
+            self.x = xnplusone[0]
+            self.y = xnplusone[1]
+            self.z = xnplusone[2]
+
+            self.last_coords[1][:] = xnplusone
+
+        self.i += 1
