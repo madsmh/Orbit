@@ -35,7 +35,7 @@ class Body:
         # Radius of the body (m)
         self.radius = radius
 
-        # Sorage of last integration results
+        # Storage of last integration results
         self.last_coords = np.zeros(shape=(2, 3), dtype=float)
 
         # Integration counter
