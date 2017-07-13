@@ -96,8 +96,8 @@ def check_mars():
     trajectory_earth = np.loadtxt("trajectories/earth.gz", float, delimiter=',')
 
     distance = (trajectory_earth[:, 0]-trajectory_mars[:, 0]) ** 2 + \
-                       (trajectory_earth[:, 1]-trajectory_mars[:, 1]) ** 2 + \
-                       (trajectory_earth[:, 2]-trajectory_mars[:, 2]) ** 2
+        (trajectory_earth[:, 1]-trajectory_mars[:, 1]) ** 2 + \
+        (trajectory_earth[:, 2]-trajectory_mars[:, 2]) ** 2
 
     min_dist = np.sqrt(np.min(distance))
     print('Minimum distance between Earth and Mars is: ' + str(min_dist/1000) + ' km')
@@ -245,6 +245,6 @@ def plot_planets():
     ax.legend()
     plt.show()
 
-gen_coords()
-check_mars()
-# plot_planets()
+# gen_coords()
+# check_mars()
+plot_planets()
