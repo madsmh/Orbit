@@ -83,10 +83,10 @@ neptune_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, plut
 pluto_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, neptune]
 
 # Number of coordinate pairs
-n = 64*400
+n = 8*800
 
 # Time interval in seconds (1/64 Earth solar day)
-dt = 1440*60/64
+dt = 1440*60/8
 
 
 def check_mars():
@@ -95,11 +95,23 @@ def check_mars():
     trajectory_mars = np.loadtxt("trajectories/mars.gz", float, delimiter=',')
     trajectory_earth = np.loadtxt("trajectories/earth.gz", float, delimiter=',')
 
-    mars_nasa = np.array(mars_data)
-    earth_nasa = np.array(earth_data)
+    distance = (trajectory_earth[:, 0]-trajectory_mars[:, 0]) ** 2 + \
+                       (trajectory_earth[:, 1]-trajectory_mars[:, 1]) ** 2 + \
+                       (trajectory_earth[:, 2]-trajectory_mars[:, 2]) ** 2
 
-    print(np.abs(trajectory_earth[:64:64*31, :] - earth_nasa[:, 0:3]))
-    # print(np.abs(trajectory_mars[:len(mars_nasa), :]-mars_nasa[:, 0:3]))
+    min_dist = np.sqrt(np.min(distance))
+    print('Minimum distance between Earth and Mars is: ' + str(min_dist/1000) + ' km')
+
+    orbit_dist = np.zeros(n ** 2)
+    i = 0
+    for x, y, z in trajectory_earth:
+        for u, v, w, in trajectory_mars:
+            dist = (x-u) ** 2 + (y-v) ** 2 + (z-w) ** 2
+            orbit_dist[i] = dist
+            i += 1
+
+    min_orbit_dist = np.sqrt(orbit_dist.min())
+    print('Minium orbit distance is: ' + str(min_orbit_dist/1000) + ' km')
 
 
 def gen_coords():
@@ -165,7 +177,7 @@ def gen_coords():
         venus.step(dt, venus_array)
         jupiter.step(dt, jupiter_array)
         mercury.step(dt, mercury_array)
-        # sun.step(dt, sun_array)
+        sun.step(dt, sun_array)
         saturn.step(dt, saturn_array)
         uranus.step(dt, uranus_array)
         neptune.step(dt, neptune_array)
@@ -181,6 +193,8 @@ def gen_coords():
     np.savetxt("trajectories/uranus.gz", trajectory_uranus, delimiter=',')
     np.savetxt("trajectories/neptune.gz", trajectory_neptune, delimiter=',')
     np.savetxt("trajectories/pluto.gz", trajectory_pluto, delimiter=',')
+
+    print('Trajectories generated and saved to file')
 
 
 def plot_planets():
@@ -209,8 +223,8 @@ def plot_planets():
     def plot_sphere(x0, y0, z0, body, col):
         """Plot a sphere at x0, y0, z0 representing body with color col"""
 
-        u = np.linspace(0, 2 * np.pi, 20)
-        v = np.linspace(0, np.pi, 20)
+        u = np.linspace(0, 2 * np.pi, 10)
+        v = np.linspace(0, np.pi, 10)
         x = x0 + body.radius * np.outer(np.cos(u), np.sin(v))
         y = y0 + body.radius * np.outer(np.sin(u), np.sin(v))
         z = z0 + body.radius * np.outer(np.ones(np.size(u)), np.cos(v))
@@ -220,8 +234,8 @@ def plot_planets():
     # Plot the Sun
     plot_sphere(trajectory_sun[-1][0], trajectory_sun[-1][1], trajectory_sun[-1][2], sun, 'y')
 
-    xylim = 1e11
-    zlim = 1e11
+    xylim = 1.3e11
+    zlim = 1.3e11
 
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
@@ -230,6 +244,7 @@ def plot_planets():
 
     ax.legend()
     plt.show()
+
 gen_coords()
-# check_mars()
-plot_planets()
+check_mars()
+# plot_planets()
