@@ -6,10 +6,10 @@ import numpy as np
 class Body:
     """A celestial body class, with all initial values in SI units """
 
-    def __init__(self, name, x0, y0, z0, vx0, vy0, vz0, GM, radius):
+    def __init__(self, name, x0, y0, z0, vx0, vy0, vz0, gm, radius):
 
         # Gravitational parameter
-        self.GM = GM
+        self.GM = gm
 
         # Name of the body (string)
         self.name = name
@@ -46,11 +46,11 @@ class Body:
 
         # Acceleration in the x-direction (m/s^2)
         ax = self.GM / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
-             delta_x / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
+            delta_x / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
 
         # Acceleration in the y-direction (m/s^2)
         ay = self.GM / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
-             delta_y / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
+            delta_y / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
 
         # Acceleration in the z-direction (ms/s^2)
         az = self.GM / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
@@ -59,7 +59,7 @@ class Body:
         return ax, ay, az
 
     def step(self, dt, targets):
-        """4th order Runge-Kutta integration"""
+        """RK4-integration"""
 
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 3))
