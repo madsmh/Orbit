@@ -1,7 +1,5 @@
 import numpy as np
 
-# TODO Need to verify that the method is valid.
-
 
 class Body:
     """A celestial body class, with all initial values in SI units """
@@ -44,23 +42,28 @@ class Body:
         delta_y = self.y - y
         delta_z = self.z - z
 
+        # Deltas squared
+        delta_x2 = delta_x ** 2
+        delta_y2 = delta_y ** 2
+        delta_z2 = delta_z ** 2
+
         # Acceleration in the x-direction (m/s^2)
-        ax = self.GM / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
-            delta_x / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
+        ax = self.GM / (delta_x2 + delta_y2 + delta_z2) * \
+            delta_x / np.sqrt(delta_x2 + delta_y2 + delta_z2)
 
         # Acceleration in the y-direction (m/s^2)
-        ay = self.GM / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
-            delta_y / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
+        ay = self.GM / (delta_x2 + delta_y2 + delta_z2) * \
+            delta_y / np.sqrt(delta_x2 + delta_y2 + delta_z2)
 
         # Acceleration in the z-direction (ms/s^2)
-        az = self.GM / (delta_x ** 2 + delta_y ** 2 + delta_z ** 2) * \
-            delta_z / np.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
+        az = self.GM / (delta_x2 + delta_y2 + delta_z2) * \
+            delta_z / np.sqrt(delta_x2 + delta_y2 + delta_z2)
 
         return ax, ay, az
 
     def step(self, dt, targets):
         """RK4-integration"""
-
+        # TODO Replace RK4 integrator with a symplectic integrator
         # Acceleration due to targets (NumPy array)
         a = np.zeros(shape=(1, 3))
         for o in targets:
