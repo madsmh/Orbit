@@ -36,7 +36,7 @@ class Body:
         self.radius = radius
 
         # Sorage of last integration results
-        self.last_coords = np.zeros(shape=(2, 3))
+        self.last_coords = np.zeros(shape=(2, 3), dtype=float)
 
         # Integration counter
         self.i = 0
@@ -68,7 +68,7 @@ class Body:
         return np.array([ax, ay, az])
 
     def step(self, dt, targets):
-        """Symplectic integrator"""
+        """Verlet integrator"""
 
         # dt squared
         dt2 = dt ** 2
@@ -97,7 +97,7 @@ class Body:
 
             self.last_coords[1][:] = x1
 
-        elif self.i != 0 and self.i % 2 == 0:
+        elif (self.i % 2) == 0:
             xnminusone = self.last_coords[0][:]
             xn = self.last_coords[1][:]
 
@@ -113,7 +113,7 @@ class Body:
             self.z = xnplusone[2]
 
             self.last_coords[0][:] = xnplusone
-        elif self.i != 1 and self.i % 2 != 0:
+        elif (self.i % 2) != 0:
             xnminusone = self.last_coords[1][:]
             xn = self.last_coords[0][:]
 
