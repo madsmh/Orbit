@@ -83,7 +83,7 @@ neptune_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, plut
 pluto_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, neptune]
 
 # Number of coordinate pairs
-n = 8*800
+n = 8*4400
 
 # Time interval in seconds (1/64 Earth solar day)
 dt = 1440*60/8
@@ -202,22 +202,27 @@ def plot_planets():
     trajectory_earth = np.loadtxt("trajectories/earth.gz", float, delimiter=',')
     trajectory_mars = np.loadtxt("trajectories/mars.gz", float, delimiter=',')
     trajectory_venus = np.loadtxt("trajectories/venus.gz", float, delimiter=',')
-    # trajectory_jupiter = np.loadtxt("trajectories/jupiter.gz", float, delimiter=',')
+    trajectory_jupiter = np.loadtxt("trajectories/jupiter.gz", float, delimiter=',')
     trajectory_mercury = np.loadtxt("trajectories/mercury.gz", float, delimiter=',')
     trajectory_sun = np.loadtxt("trajectories/sun.gz", float, delimiter=',')
-    # trajectory_saturn = np.loadtxt("trajectories/saturn.gz", float, delimiter=',')
-    # trajectory_uranus = np.loadtxt("trajectories/uranus.gz", float, delimiter=',')
-    # trajectory_neptune = np.loadtxt("trajectories/neptune.gz", float, delimiter=',')
-    # trajectory_pluto = np.loadtxt("trajectories/pluto.gz", float, delimiter=',')
+    trajectory_saturn = np.loadtxt("trajectories/saturn.gz", float, delimiter=',')
+    trajectory_uranus = np.loadtxt("trajectories/uranus.gz", float, delimiter=',')
+    trajectory_neptune = np.loadtxt("trajectories/neptune.gz", float, delimiter=',')
+    trajectory_pluto = np.loadtxt("trajectories/pluto.gz", float, delimiter=',')
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
-    # Plot inner planets
-    ax.plot(trajectory_earth[:, 0], trajectory_earth[:, 1], trajectory_earth[:, 2], label=earth.name)
-    ax.plot(trajectory_mars[:, 0], trajectory_mars[:, 1], trajectory_mars[:, 2], label=mars.name)
+    # Plot planets
     ax.plot(trajectory_mercury[:, 0], trajectory_mercury[:, 1], trajectory_mercury[:, 2], label=mercury.name)
     ax.plot(trajectory_venus[:, 0], trajectory_venus[:, 1], trajectory_venus[:, 2], label=venus.name)
+    ax.plot(trajectory_earth[:, 0], trajectory_earth[:, 1], trajectory_earth[:, 2], label=earth.name)
+    ax.plot(trajectory_mars[:, 0], trajectory_mars[:, 1], trajectory_mars[:, 2], label=mars.name)
+    ax.plot(trajectory_jupiter[:, 0], trajectory_jupiter[:, 1], trajectory_jupiter[:, 2], label=jupiter.name)
+    ax.plot(trajectory_saturn[:, 0], trajectory_saturn[:, 1], trajectory_saturn[:, 2], label=saturn.name)
+    ax.plot(trajectory_uranus[:, 0], trajectory_uranus[:, 1], trajectory_uranus[:, 2], label=uranus.name)
+    ax.plot(trajectory_neptune[:, 0], trajectory_neptune[:, 1], trajectory_neptune[:, 2], label=neptune.name)
+    ax.plot(trajectory_pluto[:, 0], trajectory_pluto[:, 1], trajectory_pluto[:, 2], label=pluto.name)
 
     # Sphere
     def plot_sphere(x0, y0, z0, body, col):
@@ -234,8 +239,8 @@ def plot_planets():
     # Plot the Sun
     plot_sphere(trajectory_sun[-1][0], trajectory_sun[-1][1], trajectory_sun[-1][2], sun, 'y')
 
-    xylim = 1.3e11
-    zlim = 1.3e11
+    xylim = 4e12
+    zlim = 1e12
 
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
