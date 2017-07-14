@@ -12,7 +12,7 @@ SUN_GM = 1.32712440018e20
 SUN_RADIUS = 695700000.0
 
 EARTH_MASS = 5.97219e24
-EARTH_GM = 398600.440 * 10 ** 9
+EARTH_GM = 3.986004418e14
 EARTH_RADIUS = 6371000.0
 
 MERCURY_MASS = 3.302e23
@@ -24,7 +24,7 @@ VENUS_GM = 324858.63 * 10 ** 9
 VENUS_RADIUS = 6051800.0
 
 MARS_MASS = 6.4185e23
-MARS_GM = 42828.3 * 10 ** 9
+MARS_GM = 4.282837e13
 MARS_RADIUS = 3389500.0
 
 JUPITER_MASS = 1898.13e24
@@ -83,8 +83,8 @@ neptune_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, plut
 pluto_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, neptune]
 
 # Number of coordinate pairs
-detail = 5
-n = detail * 1000
+detail = 1
+n = detail * 700
 
 # Time interval in seconds (1/detail Earth solar day)
 dt = 86400 / detail
@@ -99,8 +99,10 @@ def check_mars():
     mars_nasa = np.array(mars_data)
     earth_nasa = np.array(earth_data)
 
-    print('Absolule error from the NASA dataset (Earth): \n' + str(np.abs(trajectory_earth[0:31*detail:detail, :] - earth_nasa[:, 0:3])))
-    print('Absolule error from the NASA dataset (Mars): \n' + str(np.abs(trajectory_mars[0:31*detail:detail, :] - mars_nasa[:, 0:3])))
+    print('Absolule error from the NASA dataset (Earth): \n' +
+          str(np.abs(trajectory_earth[0:31*detail:detail, :] - earth_nasa[:, 0:3])))
+    print('Absolule error from the NASA dataset (Mars): \n' +
+          str(np.abs(trajectory_mars[0:31*detail:detail, :] - mars_nasa[:, 0:3])))
 
     distance = (trajectory_earth[:, 0]-trajectory_mars[:, 0]) ** 2 + \
         (trajectory_earth[:, 1]-trajectory_mars[:, 1]) ** 2 + \
@@ -112,8 +114,8 @@ def check_mars():
     orbit_dist = np.zeros(shape=2)
     dist = 0
     i = 0
-    for x, y, z in trajectory_earth:
-        for u, v, w, in trajectory_mars:
+    for x, y, z in trajectory_earth[detail * 300:detail * 400, :]:
+        for u, v, w, in trajectory_mars[detail * 300:detail * 400, :]:
             if i == 0:
                 orbit_dist[0] = (x-u) ** 2 + (y-v) ** 2 + (z-w) ** 2
                 i += 1
@@ -226,14 +228,21 @@ def plot_planets():
     trajectory_neptune = np.loadtxt("trajectories/neptune.gz", float, delimiter=',')
     trajectory_pluto = np.loadtxt("trajectories/pluto.gz", float, delimiter=',')
 
+    mars_diag = np.array(read_horizon.readdiagnosticdata('mars'))
+    earth_diag = np.array(read_horizon.readdiagnosticdata('earth'))
+
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
     # Plot planets
-    ax.plot(trajectory_mercury[:, 0], trajectory_mercury[:, 1], trajectory_mercury[:, 2], label=mercury.name)
-    ax.plot(trajectory_venus[:, 0], trajectory_venus[:, 1], trajectory_venus[:, 2], label=venus.name)
-    ax.plot(trajectory_earth[:, 0], trajectory_earth[:, 1], trajectory_earth[:, 2], label=earth.name)
-    ax.plot(trajectory_mars[:, 0], trajectory_mars[:, 1], trajectory_mars[:, 2], label=mars.name)
+    #ax.plot(trajectory_mercury[:, 0], trajectory_mercury[:, 1], trajectory_mercury[:, 2], label=mercury.name)
+    #ax.plot(trajectory_venus[:, 0], trajectory_venus[:, 1], trajectory_venus[:, 2], label=venus.name)
+    ax.plot(trajectory_earth[:, 0], trajectory_earth[:, 1], trajectory_earth[:, 2], label='Earth simulated')
+    ax.plot(trajectory_mars[:, 0], trajectory_mars[:, 1], trajectory_mars[:, 2], label='Mars simulated')
+
+    ax.plot(earth_diag[:, 0], earth_diag[:, 1], earth_diag[:, 2], label='Earth diagnostic')
+    ax.plot(mars_diag[:, 0], mars_diag[:, 1], mars_diag[:, 2], label='Mars diagnostic')
+
     # ax.plot(trajectory_jupiter[:, 0], trajectory_jupiter[:, 1], trajectory_jupiter[:, 2], label=jupiter.name)
     # ax.plot(trajectory_saturn[:, 0], trajectory_saturn[:, 1], trajectory_saturn[:, 2], label=saturn.name)
     # ax.plot(trajectory_uranus[:, 0], trajectory_uranus[:, 1], trajectory_uranus[:, 2], label=uranus.name)
@@ -253,7 +262,7 @@ def plot_planets():
         ax.plot_surface(x, y, z, color=col)
 
     # Plot the Sun
-    plot_sphere(trajectory_sun[-1][0], trajectory_sun[-1][1], trajectory_sun[-1][2], sun, 'y')
+    # plot_sphere(trajectory_sun[-1][0], trajectory_sun[-1][1], trajectory_sun[-1][2], sun, 'y')
 
     xylim = 1.2e11
     zlim = 1.2e11
@@ -266,6 +275,6 @@ def plot_planets():
     ax.legend()
     plt.show()
 
-# gen_coords()
+gen_coords()
 # check_mars()
 plot_planets()
