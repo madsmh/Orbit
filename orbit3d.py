@@ -16,11 +16,11 @@ EARTH_GM = 3.986004418e14
 EARTH_RADIUS = 6371000.0
 
 MERCURY_MASS = 3.302e23
-MERCURY_GM = 22032.09 * 10 ** 9
+MERCURY_GM = 2.2032e13
 MERCURY_RADIUS = 2439700
 
 VENUS_MASS = 48.685e23
-VENUS_GM = 324858.63 * 10 ** 9
+VENUS_GM = 3.24859e14
 VENUS_RADIUS = 6051800.0
 
 MARS_MASS = 6.4185e23
@@ -40,14 +40,14 @@ URANUS_GM = 5793966 * 10 ** 9
 URANUS_RADIUS = 24973000
 
 NEPTUNE_MASS = 102.41e24
-NEPTUNE_GM = 6835107 * 10 ** 9
+NEPTUNE_GM = 6.836529e15
 NEPTUNE_RADIUS = 24341000
 
 PLUTO_MASS = 1.307e22
-PLUTO_GM = 872.4 * 10 ** 9
+PLUTO_GM  = 8.71e11
 PLUTO_RADIUS = 1195e3
 
-earth_data = read_horizon.readdata('earth')
+earth_data = read_horizon.readdiagnosticdata('earth')
 mercury_data = read_horizon.readdata('mercury')
 venus_data = read_horizon.readdata('venus')
 jupiter_data = read_horizon.readdata('jupiter')
@@ -55,7 +55,7 @@ saturn_data = read_horizon.readdata('saturn')
 uranus_data = read_horizon.readdata('uranus')
 neptune_data = read_horizon.readdata('neptune')
 pluto_data = read_horizon.readdata('pluto')
-mars_data = read_horizon.readdata('mars')
+mars_data = read_horizon.readdiagnosticdata('mars')
 
 # Bodies
 sun = celestial3d.Body('Sun', 0, 0, 0, 0, 0, 0, SUN_GM, SUN_RADIUS)
@@ -84,7 +84,7 @@ pluto_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, neptun
 
 # Number of coordinate pairs
 detail = 1
-n = detail * 700
+n = detail * 1100
 
 # Time interval in seconds (1/detail Earth solar day)
 dt = 86400 / detail
