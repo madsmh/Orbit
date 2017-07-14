@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class System:
     def __init__(self, bodies):
         self.bodies = bodies
@@ -10,6 +11,11 @@ class System:
         for b, i in zip(self.bodies, range(self.n)):
             pos[i][:] = b.get_position()
         return pos
+
+    def set_positions(self, pos):
+        """Accepts a n x 3 array with coordinates"""
+        for a, i in zip(self.bodies, range(self.n)):
+            a.set_position(*pos[i][:])
 
     def force_matrix(self):
 
@@ -34,7 +40,7 @@ class System:
 
         for one, i in zip(self.bodies, range(self.n)):
             for two, j in zip(self.bodies, range(self.n)):
-                forces[j][i][:] = force(one, two)
+                forces[i][j][:] = force(one, two)
 
         return forces
 
