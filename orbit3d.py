@@ -83,10 +83,11 @@ neptune_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, plut
 pluto_array = [sun, earth, jupiter, mars, venus, mercury, saturn, uranus, neptune]
 
 # Number of coordinate pairs
-n = 8*4400
+detail = 5
+n = detail * 1000
 
-# Time interval in seconds (1/64 Earth solar day)
-dt = 1440*60/8
+# Time interval in seconds (1/detail Earth solar day)
+dt = 86400 / detail
 
 
 def check_mars():
@@ -95,6 +96,12 @@ def check_mars():
     trajectory_mars = np.loadtxt("trajectories/mars.gz", float, delimiter=',')
     trajectory_earth = np.loadtxt("trajectories/earth.gz", float, delimiter=',')
 
+    mars_nasa = np.array(mars_data)
+    earth_nasa = np.array(earth_data)
+
+    print('Absolule error from the NASA dataset (Earth): \n' + str(np.abs(trajectory_earth[0:31*detail:detail, :] - earth_nasa[:, 0:3])))
+    print('Absolule error from the NASA dataset (Mars): \n' + str(np.abs(trajectory_mars[0:31*detail:detail, :] - mars_nasa[:, 0:3])))
+
     distance = (trajectory_earth[:, 0]-trajectory_mars[:, 0]) ** 2 + \
         (trajectory_earth[:, 1]-trajectory_mars[:, 1]) ** 2 + \
         (trajectory_earth[:, 2]-trajectory_mars[:, 2]) ** 2
@@ -102,15 +109,24 @@ def check_mars():
     min_dist = np.sqrt(np.min(distance))
     print('Minimum distance between Earth and Mars is: ' + str(min_dist/1000) + ' km')
 
-    orbit_dist = np.zeros(n ** 2)
+    orbit_dist = np.zeros(shape=2)
+    dist = 0
     i = 0
     for x, y, z in trajectory_earth:
         for u, v, w, in trajectory_mars:
-            dist = (x-u) ** 2 + (y-v) ** 2 + (z-w) ** 2
-            orbit_dist[i] = dist
-            i += 1
+            if i == 0:
+                orbit_dist[0] = (x-u) ** 2 + (y-v) ** 2 + (z-w) ** 2
+                i += 1
+            elif i == 1:
+                orbit_dist[1] = (x-u) ** 2 + (y-v) ** 2 + (z-w) ** 2
+                i += 1
+            elif i > 1:
+                dist = orbit_dist.min()
+                orbit_dist[0] = dist
+                orbit_dist[1] = (x - u) ** 2 + (y - v) ** 2 + (z - w) ** 2
 
-    min_orbit_dist = np.sqrt(orbit_dist.min())
+    min_orbit_dist = np.sqrt(dist)
+
     print('Minium orbit distance is: ' + str(min_orbit_dist/1000) + ' km')
 
 
@@ -218,11 +234,11 @@ def plot_planets():
     ax.plot(trajectory_venus[:, 0], trajectory_venus[:, 1], trajectory_venus[:, 2], label=venus.name)
     ax.plot(trajectory_earth[:, 0], trajectory_earth[:, 1], trajectory_earth[:, 2], label=earth.name)
     ax.plot(trajectory_mars[:, 0], trajectory_mars[:, 1], trajectory_mars[:, 2], label=mars.name)
-    ax.plot(trajectory_jupiter[:, 0], trajectory_jupiter[:, 1], trajectory_jupiter[:, 2], label=jupiter.name)
-    ax.plot(trajectory_saturn[:, 0], trajectory_saturn[:, 1], trajectory_saturn[:, 2], label=saturn.name)
-    ax.plot(trajectory_uranus[:, 0], trajectory_uranus[:, 1], trajectory_uranus[:, 2], label=uranus.name)
-    ax.plot(trajectory_neptune[:, 0], trajectory_neptune[:, 1], trajectory_neptune[:, 2], label=neptune.name)
-    ax.plot(trajectory_pluto[:, 0], trajectory_pluto[:, 1], trajectory_pluto[:, 2], label=pluto.name)
+    # ax.plot(trajectory_jupiter[:, 0], trajectory_jupiter[:, 1], trajectory_jupiter[:, 2], label=jupiter.name)
+    # ax.plot(trajectory_saturn[:, 0], trajectory_saturn[:, 1], trajectory_saturn[:, 2], label=saturn.name)
+    # ax.plot(trajectory_uranus[:, 0], trajectory_uranus[:, 1], trajectory_uranus[:, 2], label=uranus.name)
+    # ax.plot(trajectory_neptune[:, 0], trajectory_neptune[:, 1], trajectory_neptune[:, 2], label=neptune.name)
+    # ax.plot(trajectory_pluto[:, 0], trajectory_pluto[:, 1], trajectory_pluto[:, 2], label=pluto.name)
 
     # Sphere
     def plot_sphere(x0, y0, z0, body, col):
@@ -239,8 +255,8 @@ def plot_planets():
     # Plot the Sun
     plot_sphere(trajectory_sun[-1][0], trajectory_sun[-1][1], trajectory_sun[-1][2], sun, 'y')
 
-    xylim = 4e12
-    zlim = 1e12
+    xylim = 1.2e11
+    zlim = 1.2e11
 
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
