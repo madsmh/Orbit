@@ -7,6 +7,7 @@ class System:
         self.n = len(self.bodies)
 
     def get_positions(self):
+        """Returns a n x 3 array with coordinates"""
         pos = np.zeros(self.n, 3)
         for b, i in zip(self.bodies, range(self.n)):
             pos[i][:] = b.get_position()
@@ -17,7 +18,13 @@ class System:
         for a, i in zip(self.bodies, range(self.n)):
             a.set_position(*pos[i][:])
 
+    def set_velocities(self, vel):
+        """Accepts a n x 3 array with velocities"""
+        for a, i in zip(self.bodies, range(self.n)):
+            a.set_position(*vel[i][:])
+
     def force_matrix(self):
+        """Returns n x n x 3 array of all the forces in the system"""
 
         def force(body1, body2):
             """Force acting on body1 from body2"""
@@ -27,7 +34,7 @@ class System:
             pos2 = body2.get_position()
 
             # Avoid a divide by zero
-            if pos1 == pos1:
+            if pos2 == pos1:
                 return np.array([0, 0, 0])
 
             r12 = pos2 - pos1
