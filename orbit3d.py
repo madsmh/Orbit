@@ -2,8 +2,9 @@ import numpy as np
 
 
 class System:
-    def __init__(self, bodies):
-        self.bodies = bodies
+    def __init__(self, properties):
+        """Accepts a n x 10 array of initial properties for celestial bodies"""
+        self.bodies = [Body(*p) for p in properties]
         self.n = len(self.bodies)
 
     def get_positions(self):
