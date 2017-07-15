@@ -4,15 +4,34 @@ import numpy as np
 class System:
     def __init__(self, properties):
         """Accepts a n x 10 array of initial properties for celestial bodies"""
+
         self.bodies = [Body(*p) for p in properties]
         self.n = len(self.bodies)
 
     def get_positions(self):
         """Returns a n x 3 array with coordinates"""
-        pos = np.zeros(self.n, 3)
+        pos = np.zeros(shape=(self.n, 3))
         for b, i in zip(self.bodies, range(self.n)):
             pos[i][:] = b.get_position()
         return pos
+
+    def get_velocities(self):
+        vel = np.zeros(shape=(self.n, 3))
+        for b, i in zip(self.bodies, range(self.n)):
+            vel[i][:] = b.get_velocity()
+        return vel
+
+    def get_accelerations(self):
+        """Compute and return the resutant acceleration"""
+
+        forces = self.force_matrix()
+        # TODO Complete this function.
+        acc = np.zeros(shape=(self.n, 3))
+
+        for a, i in zip(self.bodies, range(self.n)):
+
+
+
 
     def set_positions(self, pos):
         """Accepts a n x 3 array with coordinates"""
@@ -24,19 +43,22 @@ class System:
         for a, i in zip(self.bodies, range(self.n)):
             a.set_position(*vel[i][:])
 
+
     def force_matrix(self):
         """Returns n x n x 3 array of all the forces in the system"""
 
         def force(body1, body2):
-            """Force acting on body1 from body2"""
+            """Vector force acting on body2 exerted by body1"""
 
+            # Gravitational constant
             g = 6.67408e-11
+
             pos1 = body1.get_position()
             pos2 = body2.get_position()
 
             # Avoid a divide by zero
             if pos2 == pos1:
-                return np.array([0, 0, 0])
+                return np.zeros(shape=3)
 
             r12 = pos2 - pos1
             dist = np.abs(r12)
@@ -89,15 +111,27 @@ class Body:
         # Radius of the body (m)
         self.radius = radius
 
+        # Array to store integration results (x, y, x, vx, vy, vz)
+        self.last_values = np.zeros(shape=(2, 6))
+
+        # Integration counter
+        self.i = 0
+
     def compute_acceleration(self, force):
         """Calculate the acceleration given the resultant force (vector)"""
         return force/self.mass
 
     def get_position(self):
+        """Returns 1 x 3 array with the x, y, x positions"""
         return np.array([self.x, self.y, self.z])
 
     def get_velocity(self):
+        """Returns a 1 x 3 array of velocities"""
         return np.array([self.vx, self.vy, self.vz])
+
+    def get_last_values(self):
+        """Returns the 2 x 3 array of the last two integration results"""
+        return self.last_values
 
     def set_position(self, x, y, z):
         self.x = x
