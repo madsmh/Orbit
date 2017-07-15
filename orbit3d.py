@@ -12,17 +12,20 @@ class System:
         """Accepts arrays of initial properties for celestial bodies"""
 
         self.n = len(names)
+
+        # Initialize the bodies in our solar system
         self.bodies = [Body(names[i], *posvel[i], masses[i], gms[i], radii[i]) for i in
                        range(self.n)]
 
     def get_positions(self):
-        """Returns a n x 3 array with coordinates"""
+        """Returns a n x 3 array with position coordinates"""
         pos = np.zeros(shape=(self.n, 3))
         for b, i in zip(self.bodies, range(self.n)):
             pos[i][:] = b.get_position()
         return pos
 
     def get_velocities(self):
+        """Returns a n x 3 array with velocities"""
         vel = np.zeros(shape=(self.n, 3))
         for b, i in zip(self.bodies, range(self.n)):
             vel[i][:] = b.get_velocity()
@@ -35,8 +38,10 @@ class System:
         # Calculate the resultant force on each body
         resforce = np.sum(self.force_matrix(), axis=0)
 
+        # Array to hold the accelerations
         acc = np.zeros(shape=(self.n, 3))
 
+        # Compute the values and insert them into the array
         for a, i in zip(self.bodies, range(self.n)):
             acc[i][:] = a.compute_acceleration(resforce[i][:])
 
@@ -48,7 +53,8 @@ class System:
             a.set_position(*pos[i][:])
 
     def set_velocities(self, vel):
-        """Accepts a n x 3 array with velocities (vx, vy, vz)"""
+        """Accepts a n x 3 array with velocities (vx, vy, vz) and
+        updates the positions of all bodies in this solar system"""
         for a, i in zip(self.bodies, range(self.n)):
             a.set_position(*vel[i][:])
 
@@ -62,17 +68,19 @@ class System:
             pos2 = body2.get_position()
 
             # Avoid a divide by zero
-
             if np.array_equal(pos2, pos1):
                 return np.zeros(3)
 
+            # Distance vector
             r12 = pos2 - pos1
             dist = np.linalg.norm(r12)
 
             return -6.67259e-11 * body1.mass * body2.mass / (dist ** 3) * r12
 
+        # Array to hold the force vectors
         forces = np.zeros(shape=(self.n, self.n, 3))
 
+        # Calculate the force vectors and insert them into the array
         for a, i in zip(self.bodies, range(self.n)):
             for b, j in zip(self.bodies, range(self.n)):
                 forces[i][j][:] = force(a, b)
@@ -146,20 +154,27 @@ class Body:
 
 
 class Trajectory:
+    """Saves 3-dimensional trajectories for a numbder of objects"""
     def __init__(self, n_trajectories, n_coords):
         self.trajectories = [np.zeros(shape=(n_coords, 3)) for _ in range(n_trajectories)]
         self.n_trajectories = n_trajectories
         self.row_counter = 0
         self.n_coords = n_coords
+
     def set_trajectory_position(self, pos):
+        """Inputs a new position for every object from an n x 3 table"""
         for i in range(self.n_trajectories):
             self.trajectories[i][self.row_counter] = pos[i]
         self.row_counter += 1
 
     def get_trajectory(self, i):
+        """Returns array i"""
         return self.trajectories[i]
 
     def get_position_at_index(self, i):
+        """Gets the positions of all objects at index i
+           as a n x 3 array"""
+
         data = np.zeros(shape=(self.n_trajectories, 3))
 
         for t, j in zip(self.trajectories, range(self.n_trajectories)):
