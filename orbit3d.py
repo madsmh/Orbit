@@ -30,7 +30,7 @@ class System:
         all the bodies in an n x 3 array"""
 
         # Calculate the resultant force on each body
-        resforce = np.sum(self.force_matrix(), axis=1)
+        resforce = np.sum(self.force_matrix(), axis=0)
 
         acc = np.zeros(shape=(self.n, 3))
 
@@ -38,24 +38,6 @@ class System:
             acc[i][:] = a.compute_acceleration(resforce[i][:])
 
         return acc
-
-    def get_integration_results(self, pos):
-        """Returns the two last integration results of
-        the body_n'th body as a 2 x 6 array"""
-        data = np.zeros(shape=(self.n, 6))
-        for b, i in zip(self.bodies, range(self.n)):
-            data[i] = b.get_integration_result(pos)
-        return data
-
-    def set_integration_results(self, pos, res_pos, res_vel):
-        """Accepts am integer, integer, n x 3 array, n x 3 array
-         and sets the array as the integration result for the
-          bodies at postion pos"""
-
-        data = np.concatenate([res_pos, res_vel], axis=1)
-
-        for b, i in zip(self.bodies, range(self.n)):
-            b.set_integration_result(pos, data[i][:])
 
     def set_positions(self, pos):
         """Accepts a n x 3 array with coordinates (x, y, z)"""
@@ -73,27 +55,24 @@ class System:
         def force(body1, body2):
             """Vector force (in N) acting on body2 exerted by body1"""
 
-            # Gravitational constant
-            g = 6.67259e-11
-
             pos1 = body1.get_position()
             pos2 = body2.get_position()
 
             # Avoid a divide by zero
+
             if np.array_equal(pos2, pos1):
                 return np.zeros(3)
 
             r12 = pos2 - pos1
-            dist = np.abs(r12)
-            r12_hat = r12 / dist
+            dist = np.linalg.norm(r12)
 
-            return -g * body1.mass * body2.mass / (dist ** 2) * r12_hat
+            return -6.67259e-11 * body1.mass * body2.mass / (dist ** 3) * r12
 
         forces = np.zeros(shape=(self.n, self.n, 3))
 
-        for one, i in zip(self.bodies, range(self.n)):
-            for two, j in zip(self.bodies, range(self.n)):
-                forces[i][j][:] = force(one, two)
+        for a, i in zip(self.bodies, range(self.n)):
+            for b, j in zip(self.bodies, range(self.n)):
+                forces[i][j][:] = force(a, b)
 
         return forces
 
@@ -134,12 +113,6 @@ class Body:
         # Radius of the body (m)
         self.radius = radius
 
-        # Array to store integration results (x, y, x, vx, vy, vz)
-        self.last_values = np.zeros(shape=(2, 6))
-
-        # Integration counter
-        self.iter = 0
-
     def compute_acceleration(self, force):
         """Calculate the acceleration given the resultant force (vector)"""
         return force/self.mass
@@ -168,18 +141,6 @@ class Body:
         self.vy = vy
         self.vz = vz
 
-    def set_integration_result(self, pos, result):
-        """Accepts an 1 x 6 array and inserts it in the
-        previous integration result array at position pos"""
-
-        self.last_values[pos][:] = result
-
-    def get_integration_result(self, pos):
-        """Returns previous integration result array
-        at position pos"""
-
-        return self.last_values[pos][:]
-
     def ke(self):
         """Calculate and return the kinetic energy"""
         return 0.5 * self.mass * (self.vx ** 2 + self.vy ** 2 + self.vz ** 2)
@@ -190,7 +151,7 @@ class Trajectory:
         self.trajectories = [np.zeros(shape=(n_coords, 3)) for _ in range(n_trajectories)]
         self.n_trajectories = n_trajectories
         self.row_counter = 0
-
+        self.n_coords = n_coords
     def set_trajectory_position(self, pos):
         for i in range(self.n_trajectories):
             self.trajectories[i][self.row_counter] = pos[i]
@@ -199,6 +160,13 @@ class Trajectory:
     def get_trajectory(self, i):
         return self.trajectories[i]
 
+    def get_position_at_index(self, i):
+        data = np.zeros(shape=(self.n_trajectories, 3))
+
+        for t, j in zip(self.trajectories, range(self.n_trajectories)):
+            data[j] = t[i]
+
+        return data
 # List of body names
 body_names = ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars',
               'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
@@ -206,18 +174,20 @@ n_bodies = len(body_names)
 
 # Construct list of initial positions and velocities for each body (m and m/s)
 init_pos_vel = np.zeros(shape=(n_bodies, 6))
+
 for n, k in zip(body_names, range(n_bodies)):
     init_pos_vel[k][:] = read_horizon.readdata(n.lower())[0]
 
+
 # List of masses (kg) (reference: https://ssd.jpl.nasa.gov/?planet_phys_par)
-body_masses = np.array([1.9891e30, 0.330104e24, 4.86732e24, 5.97219e24, 0.641693e24, 1898.13e24,
+body_masses = np.array([1.988544e30, 0.330104e24, 4.86732e24, 5.97219e24, 0.641693e24, 1898.13e24,
                         568.319e24, 86.8103e24, 102.410e24, 0.01309e24])
 
 # (Mean-)Radii of the bodies (m)
 body_radii = np.array([695700e3, 2439.7e3, 6051.8e3, 6371.0e3, 3389.5e3, 69911e3, 58232e3,
                        25362e3, 24622e3, 1151e3])
 # List of gravitational parameters
-body_gms = np.array([1.32712440018e20, 2.2032e13, 3.24859e14, 3.986004418e14, 4.9048695e12, 4.282837e13,
+body_gms = np.array([1.3271244004193938e20, 2.2032e13, 3.24859e14, 3.986004418e14, 4.9048695e12, 4.282837e13,
                      1.26686534e17, 3.7931187e16, 5.793939e15, 6.836529e15, 8.71e11])
 
 # Solar system instance
@@ -229,7 +199,6 @@ n_rows = 700
 sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
 tra = Trajectory(len(body_names), n_rows)
 
-
 # Verlet
 
 # TODO Implement Velocity Verlet
@@ -240,15 +209,12 @@ for k in range(n_rows):
         # Get initial positions
         q0 = sol.get_positions()
 
-        # Save initial integration result
-        sol.set_integration_results(0, q0, p0)
-
         # Save to trajectory
         tra.set_trajectory_position(q0)
 
     elif k == 1:
 
-        q0 = sol.get_integration_results(0)[:, 0:3]
+        q0 = tra.get_position_at_index(0)
 
         # Calculate accerleration
         A = sol.get_accelerations()
@@ -257,61 +223,50 @@ for k in range(n_rows):
         q1 = q0 + p0 * dt + 0.5 * A * dt2
 
         # Save second integration result
-        sol.set_integration_results(1, q1, p0)
+        # sol.set_integration_results(1, q1, p0)
 
-        # Save to trejectory
+        # Save to trajectory
         tra.set_trajectory_position(q1)
 
         # Update positions in the Solar System
         sol.set_positions(q1)
 
     # Calculate q_n+1
-    elif k % 2 == 0:
+    elif k > 1:
         # Calculate accerleration
         A = sol.get_accelerations()
 
         # Get the prevous results
-        qn1 = sol.get_integration_results(0)[:, 0:3]
-        qn = sol.get_integration_results(1)[:, 0:3]
+        qn1 = tra.get_position_at_index(k-2)
+        qn = tra.get_position_at_index(k-1)
 
-        qplus = 2*qn-qn1 + A*dt2
-
-        # Save to trajectory
-        tra.set_trajectory_position(qplus)
-
-        # Save integration results
-        sol.set_integration_results(0, qplus, p0)
-
-        # Update positions in the Solar System
-        sol.set_positions(qplus)
-
-    elif k % 2 != 0:
-        # Calculate accerleration
-        A = sol.get_accelerations()
-
-        # Get the prevous results
-        qn1 = sol.get_integration_results(1)[:, 0:3]
-        qn = sol.get_integration_results(0)[:, 0:3]
-
-        qplus = 2*qn-qn1 + A*dt2
+        qplus = 2*qn - qn1 + A * dt2
 
         # Save to trajectory
         tra.set_trajectory_position(qplus)
 
-        # Save integration results
-        sol.set_integration_results(1, qplus, p0)
-
         # Update positions in the Solar System
         sol.set_positions(qplus)
-
 
 # Plot the orbits
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.gca(projection='3d')
 
-for j in range(4):
+#venus = read_horizon.readdiagnosticdata('venus')
+#earth = read_horizon.readdiagnosticdata('earth')
+#mars = read_horizon.readdiagnosticdata('mars')
+
+for j in range(10):
     ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
             tra.get_trajectory(j)[:, 2], label=body_names[j])
 
+# ax.plot(venus[:, 0], venus[:, 1], venus[:, 2], label='Venus diagnostic')
+# ax.plot(earth[:, 0], earth[:, 1], earth[:, 2], label='Earth diagnostic')
+# ax.plot(mars[:, 0], mars[:, 1], mars[:, 2], label='Mars diagnostic')
+
+dim = 2.5e12
+ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
+plt.legend()
 plt.show()
+
