@@ -45,7 +45,6 @@ class System:
         for a, i in zip(self.bodies, range(self.n)):
             a.set_position(*vel[i][:])
 
-
     def force_matrix(self):
         """Returns n x n x 3 array of all the forces in the system"""
 
@@ -136,15 +135,20 @@ class Body:
         return self.last_values
 
     def set_position(self, x, y, z):
+        """Set the position"""
         self.x = x
         self.y = y
         self.z = z
 
     def set_velocity(self, vx, vy, vz):
+        """Set the velocity"""
         self.vx = vx
         self.vy = vy
         self.vz = vz
 
     def ke(self):
-        """Calculate the kinetic energy"""
+        """Calculate and return the kinetic energy"""
         return 0.5 * self.mass * (self.vx ** 2 + self.vy ** 2 + self.vz ** 2)
+
+
+
