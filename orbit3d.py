@@ -1,3 +1,6 @@
+# Solar system simulator. Copyright (c) 2017 Mads M. Hansen
+
+
 import numpy as np
 import read_horizon
 import matplotlib.pyplot as plt
@@ -125,10 +128,6 @@ class Body:
         """Returns a 1 x 3 array of velocities"""
         return np.array([self.vx, self.vy, self.vz])
 
-    def get_last_values(self):
-        """Returns the 2 x 3 array of the last two integration results"""
-        return self.last_values
-
     def set_position(self, x, y, z):
         """Set the position"""
         self.x = x
@@ -191,71 +190,78 @@ body_gms = np.array([1.3271244004193938e20, 2.2032e13, 3.24859e14, 3.986004418e1
                      1.26686534e17, 3.7931187e16, 5.793939e15, 6.836529e15, 8.71e11])
 
 # Solar system instance
-
-dt = 86400
+detail = 1
+dt = 86400/detail
 dt2 = dt ** 2
-n_rows = 700
+n_rows = 900*detail
 
 sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
 tra = Trajectory(len(body_names), n_rows)
 
 # Verlet
 
-# TODO Implement Velocity Verlet
-p0 = sol.get_velocities()
 
-for k in range(n_rows):
-    if k == 0:
-        # Get initial positions
-        q0 = sol.get_positions()
+def verlet(system, trajectory, rows, delta_t):
 
-        # Save to trajectory
-        tra.set_trajectory_position(q0)
+    delta_t2 = delta_t ** 2
 
-    elif k == 1:
+    # TODO Implement Velocity Verlet
+    for k in range(rows):
+        if k == 0:
+            # Get initial positions
+            q0 = system.get_positions()
 
-        q0 = tra.get_position_at_index(0)
+            # Save to trajectory
+            trajectory.set_trajectory_position(q0)
 
-        # Calculate accerleration
-        A = sol.get_accelerations()
+        elif k == 1:
+            # Get previous position
+            q0 = trajectory.get_position_at_index(0)
 
-        # Calculate q1
-        q1 = q0 + p0 * dt + 0.5 * A * dt2
+            # Get initial velocity
+            p0 = system.get_velocities()
 
-        # Save second integration result
-        # sol.set_integration_results(1, q1, p0)
+            # Calculate accerleration
+            a = system.get_accelerations()
 
-        # Save to trajectory
-        tra.set_trajectory_position(q1)
+            # Calculate q1
+            q1 = q0 + p0 * delta_t + 0.5 * a * delta_t2
 
-        # Update positions in the Solar System
-        sol.set_positions(q1)
+            # Save to trajectory
+            trajectory.set_trajectory_position(q1)
 
-    # Calculate q_n+1
-    elif k > 1:
-        # Calculate accerleration
-        A = sol.get_accelerations()
+            # Update positions of the planets
+            system.set_positions(q1)
 
-        # Get the prevous results
-        qn1 = tra.get_position_at_index(k-2)
-        qn = tra.get_position_at_index(k-1)
+        # Calculate q_n+1
+        else:
+            # Calculate accerleration
+            a = system.get_accelerations()
 
-        qplus = 2*qn - qn1 + A * dt2
+            # Get the prevous results
+            qn1 = tra.get_position_at_index(k-2)
+            qn = tra.get_position_at_index(k-1)
 
-        # Save to trajectory
-        tra.set_trajectory_position(qplus)
+            # Calculate new new positions
+            qplus = 2*qn - qn1 + a * delta_t2
 
-        # Update positions in the Solar System
-        sol.set_positions(qplus)
+            # Save to trajectory
+            trajectory.set_trajectory_position(qplus)
+
+            # Update positions of the planets
+            system.set_positions(qplus)
+
+
+verlet(sol, tra, n_rows, dt)
 
 # Plot the orbits
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-#venus = read_horizon.readdiagnosticdata('venus')
-#earth = read_horizon.readdiagnosticdata('earth')
-#mars = read_horizon.readdiagnosticdata('mars')
+# venus = read_horizon.readdiagnosticdata('venus')
+# earth = read_horizon.readdiagnosticdata('earth')
+# mars = read_horizon.readdiagnosticdata('mars')
 
 for j in range(10):
     ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
