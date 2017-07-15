@@ -37,18 +37,23 @@ class System:
 
         return acc
 
-    def get_integration_results(self, body_n):
+    def get_integration_results(self, pos):
         """Returns the two last integration results of
         the body_n'th body as a 2 x 6 array"""
+        data = np.zeros(shape=(self.n, 6))
+        for b, i in zip(self.bodies, range(self.n)):
+            data[i] = b.get_integration_result(pos)
+        return data
 
-        return self.bodies[body_n].get_last_values()
+    def set_integration_results(self, pos, res_pos, res_vel):
+        """Accepts am integer, integer, n x 3 array, n x 3 array
+         and sets the array as the integration result for the
+          bodies at postion pos"""
 
-    def set_integration_result(self, body_n, pos, result):
-        """Accepts am integer, integer, 1 x 6 array and sets
-         the array as the integration result for the body_n'th
-         body at postion pos"""
+        data = np.concatenate([res_pos, res_vel], axis=1)
 
-        self.bodies[body_n].set_integration_result(pos, result)
+        for b, i in zip(self.bodies, range(self.n)):
+            b.set_integration_result(pos, data[i][:])
 
     def set_positions(self, pos):
         """Accepts a n x 3 array with coordinates (x, y, z)"""
@@ -202,4 +207,36 @@ body_gms = np.array([1.32712440018e20, 2.2032e13, 3.24859e14, 3.986004418e14, 4.
 # Solar system instance
 sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
 
+dt = 86400
+dt2 = dt ** 2
+n_coords = 700
+int_iter = 0
 
+# Verlet
+
+# Get initial positions
+q0 = sol.get_positions()
+
+# Get initial velocities
+p0 = sol.get_velocities()
+
+# Calculate accerleration
+A = sol.get_accelerations()
+
+# Save initial integration results
+sol.set_integration_results(0, q0, p0)
+
+# Calculate x1
+
+q1 = q0 + p0 * dt + 0.5 * A * dt2
+
+# Save second integration result
+sol.set_integration_results(1, q1, p0)
+
+# Update position in the Solar System
+sol.set_positions(q1)
+
+# TODO Finish the Verlet interation loop
+for k in range(2, n_coords):
+    if k % 2 == 0:
+        None
