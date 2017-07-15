@@ -22,24 +22,26 @@ class System:
         return vel
 
     def get_accelerations(self):
-        """Compute and return the resutant acceleration"""
+        """Compute and return the resultant acceleration of
+        all the bodies in an n x 3 array"""
 
-        forces = self.force_matrix()
-        # TODO Complete this function.
+        # Calculate the resultant force on each body
+        resforce = np.sum(self.force_matrix(), axis=1)
+
         acc = np.zeros(shape=(self.n, 3))
 
         for a, i in zip(self.bodies, range(self.n)):
+            acc[i][:] = a.compute_acceleration(resforce[i][:])
 
-
-
+        return acc
 
     def set_positions(self, pos):
-        """Accepts a n x 3 array with coordinates"""
+        """Accepts a n x 3 array with coordinates (x, y, z)"""
         for a, i in zip(self.bodies, range(self.n)):
             a.set_position(*pos[i][:])
 
     def set_velocities(self, vel):
-        """Accepts a n x 3 array with velocities"""
+        """Accepts a n x 3 array with velocities (vx, vy, vz)"""
         for a, i in zip(self.bodies, range(self.n)):
             a.set_position(*vel[i][:])
 
