@@ -1,12 +1,14 @@
 import numpy as np
+import read_horizon
 
 
 class System:
-    def __init__(self, properties):
-        """Accepts a n x 10 array of initial properties for celestial bodies"""
+    def __init__(self, names, posvel, masses, gms, radii):
+        """Accepts arrays of initial properties for celestial bodies"""
 
-        self.bodies = [Body(*p) for p in properties]
-        self.n = len(self.bodies)
+        self.n = len(names)
+        self.bodies = [Body(names[i], *posvel[i], masses[i], gms[i], radii[i]) for i in
+                       range(self.n)]
 
     def get_positions(self):
         """Returns a n x 3 array with coordinates"""
@@ -52,7 +54,7 @@ class System:
             """Vector force acting on body2 exerted by body1"""
 
             # Gravitational constant
-            g = 6.67408e-11
+            g = 6.67259e-11
 
             pos1 = body1.get_position()
             pos2 = body2.get_position()
@@ -116,7 +118,7 @@ class Body:
         self.last_values = np.zeros(shape=(2, 6))
 
         # Integration counter
-        self.i = 0
+        self.iter = 0
 
     def compute_acceleration(self, force):
         """Calculate the acceleration given the resultant force (vector)"""
@@ -151,4 +153,27 @@ class Body:
         return 0.5 * self.mass * (self.vx ** 2 + self.vy ** 2 + self.vz ** 2)
 
 
+# List of body names
+body_names = ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars',
+              'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
+n_bodies = len(body_names)
+
+# Construct list of initial positions and velocities for each body (m and m/s)
+init_pos_vel = np.zeros(shape=(n_bodies, 6))
+for n, k in zip(body_names, range(n_bodies)):
+    init_pos_vel[k][:] = read_horizon.readdata(n.lower())[0]
+
+# List of masses (kg) (reference: https://ssd.jpl.nasa.gov/?planet_phys_par)
+body_masses = np.array([1.9891e30, 0.330104e24, 4.86732e24, 5.97219e24, 0.641693e24, 1898.13e24,
+                        568.319e24, 86.8103e24, 102.410e24, 0.01309e24])
+
+# (Mean-)Radii of the bodies (m)
+body_radii = np.array([695700e3, 2439.7e3, 6051.8e3, 6371.0e3, 3389.5e3, 69911e3, 58232e3,
+                       25362e3, 24622e3, 1151e3])
+# List of gravitational parameters
+body_gms = np.array([1.32712440018e20, 2.2032e13, 3.24859e14, 3.986004418e14, 4.9048695e12, 4.282837e13,
+                     1.26686534e17, 3.7931187e16, 5.793939e15, 6.836529e15, 8.71e11])
+
+# Solar system instance
+sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
 
