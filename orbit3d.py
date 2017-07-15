@@ -24,7 +24,7 @@ class System:
         return vel
 
     def get_accelerations(self):
-        """Compute and return the resultant acceleration of
+        """Compute and return the resultant acceleration (m/s^2) of
         all the bodies in an n x 3 array"""
 
         # Calculate the resultant force on each body
@@ -36,6 +36,19 @@ class System:
             acc[i][:] = a.compute_acceleration(resforce[i][:])
 
         return acc
+
+    def get_integration_results(self, body_n):
+        """Returns the two last integration results of
+        the body_n'th body as a 2 x 6 array"""
+
+        return self.bodies[body_n].get_last_values()
+
+    def set_integration_result(self, body_n, pos, result):
+        """Accepts am integer, integer, 1 x 6 array and sets
+         the array as the integration result for the body_n'th
+         body at postion pos"""
+
+        self.bodies[body_n].set_integration_result(pos, result)
 
     def set_positions(self, pos):
         """Accepts a n x 3 array with coordinates (x, y, z)"""
@@ -51,7 +64,7 @@ class System:
         """Returns n x n x 3 array of all the forces in the system"""
 
         def force(body1, body2):
-            """Vector force acting on body2 exerted by body1"""
+            """Vector force (in N) acting on body2 exerted by body1"""
 
             # Gravitational constant
             g = 6.67259e-11
@@ -60,8 +73,8 @@ class System:
             pos2 = body2.get_position()
 
             # Avoid a divide by zero
-            if pos2 == pos1:
-                return np.zeros(shape=3)
+            if np.array_equal(pos2, pos1):
+                return np.zeros(3)
 
             r12 = pos2 - pos1
             dist = np.abs(r12)
@@ -148,6 +161,18 @@ class Body:
         self.vy = vy
         self.vz = vz
 
+    def set_integration_result(self, pos, result):
+        """Accepts an 1 x 6 array and inserts it in the
+        previous integration result array at position pos"""
+
+        self.last_values[pos][:] = result
+
+    def get_integration_result(self, pos):
+        """Returns previous integration result array
+        at position pos"""
+
+        return self.last_values[pos][:]
+
     def ke(self):
         """Calculate and return the kinetic energy"""
         return 0.5 * self.mass * (self.vx ** 2 + self.vy ** 2 + self.vz ** 2)
@@ -176,4 +201,5 @@ body_gms = np.array([1.32712440018e20, 2.2032e13, 3.24859e14, 3.986004418e14, 4.
 
 # Solar system instance
 sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
+
 
