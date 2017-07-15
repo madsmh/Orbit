@@ -1,5 +1,7 @@
 import numpy as np
 import read_horizon
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class System:
@@ -263,10 +265,11 @@ for k in range(n_rows):
         # Update positions in the Solar System
         sol.set_positions(q1)
 
-# Calculate q_n+1
+    # Calculate q_n+1
     elif k % 2 == 0:
         # Calculate accerleration
         A = sol.get_accelerations()
+
         # Get the prevous results
         qn1 = sol.get_integration_results(0)[:, 0:3]
         qn = sol.get_integration_results(1)[:, 0:3]
@@ -287,10 +290,13 @@ for k in range(n_rows):
         A = sol.get_accelerations()
 
         # Get the prevous results
-        qn1 = sol.get_integration_results(0)[:, 0:3]
-        qn = sol.get_integration_results(1)[:, 0:3]
+        qn1 = sol.get_integration_results(1)[:, 0:3]
+        qn = sol.get_integration_results(0)[:, 0:3]
 
         qplus = 2*qn-qn1 + A*dt2
+
+        # Save to trajectory
+        tra.set_trajectory_position(qplus)
 
         # Save integration results
         sol.set_integration_results(1, qplus, p0)
@@ -298,5 +304,14 @@ for k in range(n_rows):
         # Update positions in the Solar System
         sol.set_positions(qplus)
 
-        # Save to trajectory
-        tra.set_trajectory_position(qplus)
+
+# Plot the orbits
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+for j in range(4):
+    ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
+            tra.get_trajectory(j)[:, 2], label=body_names[j])
+
+plt.show()
