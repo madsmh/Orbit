@@ -183,6 +183,20 @@ class Body:
         return 0.5 * self.mass * (self.vx ** 2 + self.vy ** 2 + self.vz ** 2)
 
 
+class Trajectory:
+    def __init__(self, n_trajectories, n_coords):
+        self.trajectories = [np.zeros(shape=(n_coords, 3)) for _ in range(n_trajectories)]
+        self.n_trajectories = n_trajectories
+        self.row_counter = 0
+
+    def set_trajectory_position(self, pos):
+        for i in range(self.n_trajectories):
+            self.trajectories[i][self.row_counter] = pos[i]
+        self.row_counter += 1
+
+    def get_trajectory(self, i):
+        return self.trajectories[i]
+
 # List of body names
 body_names = ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars',
               'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
@@ -205,38 +219,84 @@ body_gms = np.array([1.32712440018e20, 2.2032e13, 3.24859e14, 3.986004418e14, 4.
                      1.26686534e17, 3.7931187e16, 5.793939e15, 6.836529e15, 8.71e11])
 
 # Solar system instance
-sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
 
 dt = 86400
 dt2 = dt ** 2
-n_coords = 700
-int_iter = 0
+n_rows = 700
+
+sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
+tra = Trajectory(len(body_names), n_rows)
+
 
 # Verlet
 
-# Get initial positions
-q0 = sol.get_positions()
-
-# Get initial velocities
+# TODO Implement Velocity Verlet
 p0 = sol.get_velocities()
 
-# Calculate accerleration
-A = sol.get_accelerations()
+for k in range(n_rows):
+    if k == 0:
+        # Get initial positions
+        q0 = sol.get_positions()
 
-# Save initial integration results
-sol.set_integration_results(0, q0, p0)
+        # Save initial integration result
+        sol.set_integration_results(0, q0, p0)
 
-# Calculate x1
+        # Save to trajectory
+        tra.set_trajectory_position(q0)
 
-q1 = q0 + p0 * dt + 0.5 * A * dt2
+    elif k == 1:
 
-# Save second integration result
-sol.set_integration_results(1, q1, p0)
+        q0 = sol.get_integration_results(0)[:, 0:3]
 
-# Update position in the Solar System
-sol.set_positions(q1)
+        # Calculate accerleration
+        A = sol.get_accelerations()
 
-# TODO Finish the Verlet interation loop
-for k in range(2, n_coords):
-    if k % 2 == 0:
-        None
+        # Calculate q1
+        q1 = q0 + p0 * dt + 0.5 * A * dt2
+
+        # Save second integration result
+        sol.set_integration_results(1, q1, p0)
+
+        # Save to trejectory
+        tra.set_trajectory_position(q1)
+
+        # Update positions in the Solar System
+        sol.set_positions(q1)
+
+# Calculate q_n+1
+    elif k % 2 == 0:
+        # Calculate accerleration
+        A = sol.get_accelerations()
+        # Get the prevous results
+        qn1 = sol.get_integration_results(0)[:, 0:3]
+        qn = sol.get_integration_results(1)[:, 0:3]
+
+        qplus = 2*qn-qn1 + A*dt2
+
+        # Save to trajectory
+        tra.set_trajectory_position(qplus)
+
+        # Save integration results
+        sol.set_integration_results(0, qplus, p0)
+
+        # Update positions in the Solar System
+        sol.set_positions(qplus)
+
+    elif k % 2 != 0:
+        # Calculate accerleration
+        A = sol.get_accelerations()
+
+        # Get the prevous results
+        qn1 = sol.get_integration_results(0)[:, 0:3]
+        qn = sol.get_integration_results(1)[:, 0:3]
+
+        qplus = 2*qn-qn1 + A*dt2
+
+        # Save integration results
+        sol.set_integration_results(1, qplus, p0)
+
+        # Update positions in the Solar System
+        sol.set_positions(qplus)
+
+        # Save to trajectory
+        tra.set_trajectory_position(qplus)
