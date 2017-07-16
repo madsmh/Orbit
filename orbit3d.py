@@ -205,10 +205,10 @@ body_gms = np.array([1.3271244004193938e20, 2.2032e13, 3.24859e14, 3.986004418e1
                      1.26686534e17, 3.7931187e16, 5.793939e15, 6.836529e15, 8.71e11])
 
 # Solar system instance
-detail = 1
+detail = 128
 dt = 86400/detail
 dt2 = dt ** 2
-n_rows = 900*detail
+n_rows = 1131*detail
 
 sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
 tra = Trajectory(len(body_names), n_rows)
@@ -275,8 +275,18 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 # venus = read_horizon.readdiagnosticdata('venus')
-# earth = read_horizon.readdiagnosticdata('earth')
+earth_diangnostic = read_horizon.readdiagnosticdata('earth')
 # mars = read_horizon.readdiagnosticdata('mars')
+
+
+def diangnostic():
+    earth_sim = tra.get_trajectory(3)
+
+    print(np.sqrt(np.max((earth_sim[::detail, 0] - earth_diangnostic[:, 0]) ** 2 +
+                         (earth_sim[::detail, 1] - earth_diangnostic[:, 1]) ** 2 +
+                         (earth_sim[::detail, 2] - earth_diangnostic[:, 2]) ** 2)) / 1000)
+
+diangnostic()
 
 for j in range(10):
     ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
@@ -286,8 +296,8 @@ for j in range(10):
 # ax.plot(earth[:, 0], earth[:, 1], earth[:, 2], label='Earth diagnostic')
 # ax.plot(mars[:, 0], mars[:, 1], mars[:, 2], label='Mars diagnostic')
 
-dim = 2.5e12
-ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
-plt.legend()
-plt.show()
+#dim = 2.5e12
+#ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
+#plt.legend()
+#plt.show()
 
