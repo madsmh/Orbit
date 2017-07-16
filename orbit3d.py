@@ -189,8 +189,8 @@ n_bodies = len(body_names)
 # Construct list of initial positions and velocities for each body (m and m/s)
 init_pos_vel = np.zeros(shape=(n_bodies, 6))
 
-for n, k in zip(body_names, range(n_bodies)):
-    init_pos_vel[k][:] = read_horizon.readdata(n.lower())[0]
+for _, __ in zip(body_names, range(n_bodies)):
+    init_pos_vel[__][:] = read_horizon.readdata(_.lower())[0]
 
 
 # List of masses (kg) (reference: https://ssd.jpl.nasa.gov/?planet_phys_par)
@@ -207,7 +207,6 @@ body_gms = np.array([1.3271244004193938e20, 2.2032e13, 3.24859e14, 3.986004418e1
 # Solar system instance
 detail = 128
 dt = 86400/detail
-dt2 = dt ** 2
 n_rows = 1131*detail
 
 sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
@@ -275,20 +274,30 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 # venus = read_horizon.readdiagnosticdata('venus')
-earth_diangnostic = read_horizon.readdiagnosticdata('earth')
 # mars = read_horizon.readdiagnosticdata('mars')
 
 
 def diangnostic():
+    earth_diagnostic = read_horizon.readdiagnosticdata('earth')[:, 0:3]
     earth_sim = tra.get_trajectory(3)
+    sun_sim = tra.get_trajectory(0)
 
-    print(np.sqrt(np.max((earth_sim[::detail, 0] - earth_diangnostic[:, 0]) ** 2 +
-                         (earth_sim[::detail, 1] - earth_diangnostic[:, 1]) ** 2 +
-                         (earth_sim[::detail, 2] - earth_diangnostic[:, 2]) ** 2)) / 1000)
+    # Coordinates of sim earth with respect to the sun
+    earth_new_coords = (earth_sim - sun_sim)[::detail, :]
+
+    error = np.linalg.norm(earth_new_coords/1000-earth_diagnostic/1000, axis=1)
+    max_error = np.max(error)
+    std = np.std(error)
+    mean_error = np.mean(error)
+
+    print('Mean error is: ' + str(mean_error) + ' km')
+    print('Std. dev. is : ' + str(std))
+    print('Max. error is: ' + str(max_error) + ' km')
+
 
 diangnostic()
 
-for j in range(10):
+for j in range(5):
     ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
             tra.get_trajectory(j)[:, 2], label=body_names[j])
 
@@ -296,8 +305,7 @@ for j in range(10):
 # ax.plot(earth[:, 0], earth[:, 1], earth[:, 2], label='Earth diagnostic')
 # ax.plot(mars[:, 0], mars[:, 1], mars[:, 2], label='Mars diagnostic')
 
-#dim = 2.5e12
-#ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
-#plt.legend()
-#plt.show()
-
+dim = 2.5e11
+ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
+plt.legend()
+# plt.show()
