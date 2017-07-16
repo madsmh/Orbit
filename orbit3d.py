@@ -183,7 +183,7 @@ class Trajectory:
         return data
 # List of body names
 body_names = ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars',
-              'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
+              'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Luna']
 n_bodies = len(body_names)
 
 # Construct list of initial positions and velocities for each body (m and m/s)
@@ -195,17 +195,17 @@ for _, __ in zip(body_names, range(n_bodies)):
 
 # List of masses (kg) (reference: https://ssd.jpl.nasa.gov/?planet_phys_par)
 body_masses = np.array([1.988544e30, 0.330104e24, 4.86732e24, 5.97219e24, 0.641693e24, 1898.13e24,
-                        568.319e24, 86.8103e24, 102.410e24, 0.01309e24])
+                        568.319e24, 86.8103e24, 102.410e24, 0.01309e24, 734.9e20])
 
 # (Mean-)Radii of the bodies (m)
 body_radii = np.array([695700e3, 2439.7e3, 6051.8e3, 6371.0e3, 3389.5e3, 69911e3, 58232e3,
-                       25362e3, 24622e3, 1151e3])
+                       25362e3, 24622e3, 1151e3, 1737.4e3])
 # List of gravitational parameters
 body_gms = np.array([1.3271244004193938e20, 2.2032e13, 3.24859e14, 3.986004418e14, 4.9048695e12, 4.282837e13,
-                     1.26686534e17, 3.7931187e16, 5.793939e15, 6.836529e15, 8.71e11])
+                     1.26686534e17, 3.7931187e16, 5.793939e15, 6.836529e15, 8.71e11, 4902.80007e9])
 
 # Solar system instance
-detail = 128
+detail = 1
 dt = 86400/detail
 n_rows = 1131*detail
 
