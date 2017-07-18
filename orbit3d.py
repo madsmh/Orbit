@@ -206,18 +206,18 @@ for _, __ in zip(body_names, range(n_bodies)):
 
 
 # List of masses (kg) (reference: https://ssd.jpl.nasa.gov/?planet_phys_par)
-body_masses = np.array([1.988544e30, 0.330104e24, 4.86732e24, 5.97219e24, 0.641693e24, 1898.13e24,
-                        568.319e24, 86.8103e24, 102.410e24, 0.01309e24, 734.9e20, 9.385921e+20])
+body_masses = np.array([1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1])
 
 # (Mean-)Radii of the bodies (m)
 body_radii = np.array([695700e3, 2439.7e3, 6051.8e3, 6371.0e3, 3389.5e3, 69911e3, 58232e3,
                        25362e3, 24622e3, 1151e3, 1737.4e3, 469.7e3])
-# List of gravitational parameters
-body_gms = np.array([1.3271244004193938e20, 22032.09e9, 324858.63e9, 42828.3e9, 42828.3e9, 126686511e9,
-                     37931207.8e9, 5793966e9, 6835107e9, 872.4e9, 4902.80007e9, 62.6284e9])
+# List of gravitational parameters (Source: NASA)
+body_gms = np.array([1.3271244004193938e20, 22032.09e9, 324858.63e9, 398600.440e9, 42828.3e9, 126686511e9,
+                     37931207.8e9, 5793966e9, 6835107e9, 872.4e9, 4902.801076e9, 62.6284e9])
 
 # Solar system instance
-detail = 128
+detail = 64
 dt = 86400/detail
 n_rows = 1131*detail
 
@@ -286,7 +286,7 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 # venus = read_horizon.readdiagnosticdata('venus')
-# mars = read_horizon.readdiagnosticdata('mars')
+luna_diagnostic = read_horizon.readdiagnosticdata('luna')
 
 
 def diangnostic():
@@ -306,18 +306,20 @@ def diangnostic():
     print('Std. dev. is : ' + str(std))
     print('Max. error is: ' + str(max_error) + ' km')
 
+    # print(list(zip(body_names, body_gms)))
+
 
 diangnostic()
 
-for j in range(5):
+for j in range(12):
     ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
             tra.get_trajectory(j)[:, 2], label=body_names[j])
 
 # ax.plot(venus[:, 0], venus[:, 1], venus[:, 2], label='Venus diagnostic')
 # ax.plot(earth[:, 0], earth[:, 1], earth[:, 2], label='Earth diagnostic')
-# ax.plot(mars[:, 0], mars[:, 1], mars[:, 2], label='Mars diagnostic')
+# ax.plot(luna_diagnostic[:, 0], luna_diagnostic[:, 1], luna_diagnostic[:, 2], label='Luna diagnostic')
 
 dim = 2.5e11
 ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
 plt.legend()
-#plt.show()
+# plt.show()
