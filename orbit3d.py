@@ -183,7 +183,7 @@ for _, __ in zip(body_names, range(n_bodies)):
     init_pos_vel[__][:] = read_horizon.readdata(_.lower())[0]
 
 # Solar system instance
-detail = 1
+detail = 64
 dt = 86400/detail
 n_rows = 1131*detail
 
@@ -275,7 +275,7 @@ def diangnostic():
     # print(list(zip(body_names, body_gms)))
 
 
-# diangnostic()
+diangnostic()
 
 for j in range(len(body_names)):
     ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
@@ -288,4 +288,4 @@ for j in range(len(body_names)):
 dim = 1e12
 ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
 plt.legend()
-plt.show()
+#plt.show()
