@@ -17,16 +17,17 @@ import numpy as np
 import read_horizon
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import read_phys_properties as npp
 
 
 class System:
-    def __init__(self, names, posvel, masses, gms, radii):
+    def __init__(self, names, posvel, gms, radii):
         """Accepts arrays of initial properties for celestial bodies"""
 
         self.n = len(names)
 
         # Initialize the bodies in our solar system
-        self.bodies = [Body(names[i], *posvel[i], masses[i], gms[i], radii[i]) for i in
+        self.bodies = [Body(names[i], *posvel[i], gms[i], radii[i]) for i in
                        range(self.n)]
 
     def get_positions(self):
@@ -43,22 +44,6 @@ class System:
             vel[i][:] = b.get_velocity()
         return vel
 
-    def get_accelerations(self):
-        """Compute and return the resultant acceleration (m/s^2) of
-        all the bodies in an n x 3 array"""
-
-        # Calculate the resultant force on each body
-        resforce = np.sum(self.force_matrix(), axis=0)
-
-        # Array to hold the accelerations
-        acc = np.zeros(shape=(self.n, 3))
-
-        # Compute the values and insert them into the array
-        for a, i in zip(self.bodies, range(self.n)):
-            acc[i][:] = a.compute_acceleration(resforce[i][:])
-
-        return acc
-
     def set_positions(self, pos):
         """Accepts a n x 3 array with coordinates (x, y, z)"""
         for a, i in zip(self.bodies, range(self.n)):
@@ -70,11 +55,11 @@ class System:
         for a, i in zip(self.bodies, range(self.n)):
             a.set_position(*vel[i][:])
 
-    def force_matrix(self):
-        """Returns n x n x 3 array of all the forces in the system"""
+    def get_accelerations(self):
+        """Returns n x n array of the resultant accelerations in the system"""
 
-        def force(body1, body2):
-            """Vector force (in N) acting on body2 exerted by body1"""
+        def acceleration(body1, body2):
+            """Vector acceleration (in ms^-2) acting on body2 exerted by body1"""
 
             pos1 = body1.get_position()
             pos2 = body2.get_position()
@@ -87,28 +72,28 @@ class System:
             r12 = pos2 - pos1
             dist = np.linalg.norm(r12)
 
-            return -body1.GM * body2.mass / (dist ** 3) * r12
+            return -body1.GM / (dist ** 3) * r12
 
         # Array to hold the force vectors
-        forces = np.zeros(shape=(self.n, self.n, 3))
+        accelerations = np.zeros(shape=(self.n, self.n, 3))
 
         # Calculate the force vectors and insert them into the array
         for a, i in zip(self.bodies, range(self.n)):
             for b, j in zip(self.bodies, range(self.n)):
-                forces[i][j][:] = force(a, b)
+                accelerations[i][j][:] = acceleration(a, b)
 
-        return forces
+        accelerations = accelerations.sum(axis=0)
 
+        return accelerations
 
 class Body:
     """A celestial body class, with all initial values in SI units """
 
-    def __init__(self, name, x0, y0, z0, vx0, vy0, vz0, mass, gm, radius):
+
+    def __init__(self, name, x0, y0, z0, vx0, vy0, vz0, gm, radius):
 
         # Gravitational parameter
         self.GM = gm
-
-        self.mass = mass
 
         # Name of the body (string)
         self.name = name
@@ -136,10 +121,6 @@ class Body:
         # Radius of the body (m)
         self.radius = radius
 
-    def compute_acceleration(self, force):
-        """Calculate the acceleration given the resultant force (vector)"""
-        return force/self.mass
-
     def get_position(self):
         """Returns 1 x 3 array with the x, y, x positions"""
         return np.array([self.x, self.y, self.z])
@@ -159,10 +140,6 @@ class Body:
         self.vx = vx
         self.vy = vy
         self.vz = vz
-
-    def ke(self):
-        """Calculate and return the kinetic energy"""
-        return 0.5 * self.mass * (self.vx ** 2 + self.vy ** 2 + self.vz ** 2)
 
 
 class Trajectory:
@@ -194,8 +171,9 @@ class Trajectory:
 
         return data
 # List of body names
-body_names = ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars',
-              'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Luna', 'Ceres']
+body_names, body_radii, body_gms = npp.read_phys_properties()
+# (Mean-)Radii of the bodies (m)
+
 n_bodies = len(body_names)
 
 # Construct list of initial positions and velocities for each body (m and m/s)
@@ -204,24 +182,12 @@ init_pos_vel = np.zeros(shape=(n_bodies, 6))
 for _, __ in zip(body_names, range(n_bodies)):
     init_pos_vel[__][:] = read_horizon.readdata(_.lower())[0]
 
-
-# List of masses (kg) (reference: https://ssd.jpl.nasa.gov/?planet_phys_par)
-body_masses = np.array([1, 1, 1, 1, 1, 1,
-                        1, 1, 1, 1, 1, 1])
-
-# (Mean-)Radii of the bodies (m)
-body_radii = np.array([695700e3, 2439.7e3, 6051.8e3, 6371.0e3, 3389.5e3, 69911e3, 58232e3,
-                       25362e3, 24622e3, 1151e3, 1737.4e3, 469.7e3])
-# List of gravitational parameters (Source: NASA)
-body_gms = np.array([1.3271244004193938e20, 22032.09e9, 324858.63e9, 398600.440e9, 42828.3e9, 126686511e9,
-                     37931207.8e9, 5793966e9, 6835107e9, 872.4e9, 4902.801076e9, 62.6284e9])
-
 # Solar system instance
-detail = 64
+detail = 1
 dt = 86400/detail
 n_rows = 1131*detail
 
-sol = System(body_names, init_pos_vel, body_masses, body_gms, body_radii)
+sol = System(body_names, init_pos_vel, body_gms, body_radii)
 tra = Trajectory(len(body_names), n_rows)
 
 # Verlet
@@ -286,7 +252,7 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 # venus = read_horizon.readdiagnosticdata('venus')
-luna_diagnostic = read_horizon.readdiagnosticdata('luna')
+# luna_diagnostic = read_horizon.readdiagnosticdata('luna')
 
 
 def diangnostic():
@@ -309,9 +275,9 @@ def diangnostic():
     # print(list(zip(body_names, body_gms)))
 
 
-diangnostic()
+# diangnostic()
 
-for j in range(12):
+for j in range(len(body_names)):
     ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
             tra.get_trajectory(j)[:, 2], label=body_names[j])
 
@@ -319,7 +285,7 @@ for j in range(12):
 # ax.plot(earth[:, 0], earth[:, 1], earth[:, 2], label='Earth diagnostic')
 # ax.plot(luna_diagnostic[:, 0], luna_diagnostic[:, 1], luna_diagnostic[:, 2], label='Luna diagnostic')
 
-dim = 2.5e11
+dim = 1e12
 ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
 plt.legend()
-# plt.show()
+plt.show()
