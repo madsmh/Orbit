@@ -143,18 +143,21 @@ class Body:
 
 
 class Trajectory:
-    """Saves 3-dimensional trajectories for a numbder of objects"""
+    """Saves 3-dimensional trajectories and velocities for a number of objects"""
     def __init__(self, n_trajectories, n_coords):
-        self.trajectories = [np.zeros(shape=(n_coords, 3)) for _ in range(n_trajectories)]
+        self.trajectories = [np.zeros(shape=(n_coords, 6)) for _ in range(n_trajectories)]
         self.n_trajectories = n_trajectories
         self.row_counter = 0
         self.n_coords = n_coords
 
-    def set_trajectory_position(self, pos):
-        """Inputs a new position for every object from an n x 3 table"""
+    def set_trajectory_position(self, pos, vel):
+        """Inputs a new position and velocity for every object from two n x 3 arrays"""
         for i in range(self.n_trajectories):
-            self.trajectories[i][self.row_counter] = pos[i]
+            self.trajectories[i][self.row_counter][0:3] = pos[i]
+            self.trajectories[i][self.row_counter][3:7] = vel[i]
+
         self.row_counter += 1
+
 
     def get_trajectory(self, i):
         """Returns array i"""
@@ -162,9 +165,9 @@ class Trajectory:
 
     def get_position_at_index(self, i):
         """Gets the positions of all objects at index i
-           as a n x 3 array"""
+           as a n x 6 array"""
 
-        data = np.zeros(shape=(self.n_trajectories, 3))
+        data = np.zeros(shape=(self.n_trajectories, 6))
 
         for t, j in zip(self.trajectories, range(self.n_trajectories)):
             data[j] = t[i]
@@ -183,7 +186,7 @@ for _, __ in zip(body_names, range(n_bodies)):
     init_pos_vel[__][:] = read_horizon.readdata(_.lower())[0]
 
 # Solar system instance
-detail = 1
+detail = 64
 dt = 86400/detail
 n_rows = 1131*detail
 
@@ -197,52 +200,37 @@ def verlet(system, trajectory, rows, delta_t):
 
     delta_t2 = delta_t ** 2
 
-    # TODO Implement Velocity Verlet
     for k in range(rows):
         if k == 0:
-            # Get initial positions
+            # Get initial positions and velocities
             q0 = system.get_positions()
-
-            # Save to trajectory
-            trajectory.set_trajectory_position(q0)
-
-        elif k == 1:
-            # Get previous position
-            q0 = trajectory.get_position_at_index(0)
-
-            # Get initial velocity
             p0 = system.get_velocities()
 
-            # Calculate accerleration
-            a = system.get_accelerations()
+            # Save to trajectory
+            trajectory.set_trajectory_position(q0, p0)
+
+        else:
+            # Get previous position and velocities
+            q0 = trajectory.get_position_at_index(k-1)[:, 0:3]
+            p0 = trajectory.get_position_at_index(k-1)[:, 3:7]
+
+            # Calculate acceleration
+            a0 = system.get_accelerations()
 
             # Calculate q1
-            q1 = q0 + p0 * delta_t + 0.5 * a * delta_t2
-
-            # Save to trajectory
-            trajectory.set_trajectory_position(q1)
+            q1 = q0 + p0 * delta_t + 0.5 * a0 * delta_t2
 
             # Update positions of the planets
             system.set_positions(q1)
 
-        # Calculate q_n+1
-        else:
-            # Calculate accerleration
-            a = system.get_accelerations()
+            # Get new acceleration
+            a1 = system.get_accelerations()
 
-            # Get the prevous results
-            qn1 = trajectory.get_position_at_index(k-2)
-            qn = trajectory.get_position_at_index(k-1)
-
-            # Calculate new new positions
-            qplus = 2*qn - qn1 + a * delta_t2
+            # Calculate new velocity
+            p1 = p0 + (a0+a1)/2 * delta_t
 
             # Save to trajectory
-            trajectory.set_trajectory_position(qplus)
-
-            # Update positions of the planets
-            system.set_positions(qplus)
-
+            trajectory.set_trajectory_position(q1, p1)
 
 verlet(sol, tra, n_rows, dt)
 
@@ -257,8 +245,8 @@ ax = fig.gca(projection='3d')
 
 def diangnostic():
     earth_diagnostic = read_horizon.readdiagnosticdata('earth')[:, 0:3]
-    earth_sim = tra.get_trajectory(3)
-    sun_sim = tra.get_trajectory(0)
+    earth_sim = tra.get_trajectory(3)[:, 0:3]
+    sun_sim = tra.get_trajectory(0)[:, 0:3]
 
     # Coordinates of sim earth with respect to the sun
     earth_new_coords = (earth_sim - sun_sim)[::detail, :]
@@ -288,4 +276,4 @@ for j in range(n_bodies):
 dim = 1e12
 ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
 plt.legend()
-plt.show()
+#plt.show()
