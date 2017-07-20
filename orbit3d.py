@@ -231,8 +231,8 @@ def verlet(system, trajectory, rows, delta_t):
             a = system.get_accelerations()
 
             # Get the prevous results
-            qn1 = tra.get_position_at_index(k-2)
-            qn = tra.get_position_at_index(k-1)
+            qn1 = trajectory.get_position_at_index(k-2)
+            qn = trajectory.get_position_at_index(k-1)
 
             # Calculate new new positions
             qplus = 2*qn - qn1 + a * delta_t2
