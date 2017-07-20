@@ -170,9 +170,9 @@ class Trajectory:
             data[j] = t[i]
 
         return data
-# List of body names
+
+
 body_names, body_radii, body_gms = npp.read_phys_properties()
-# (Mean-)Radii of the bodies (m)
 
 n_bodies = len(body_names)
 
@@ -183,7 +183,7 @@ for _, __ in zip(body_names, range(n_bodies)):
     init_pos_vel[__][:] = read_horizon.readdata(_.lower())[0]
 
 # Solar system instance
-detail = 64
+detail = 1
 dt = 86400/detail
 n_rows = 1131*detail
 
@@ -277,7 +277,7 @@ def diangnostic():
 
 diangnostic()
 
-for j in range(len(body_names)):
+for j in range(n_bodies):
     ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
             tra.get_trajectory(j)[:, 2], label=body_names[j])
 
@@ -288,4 +288,4 @@ for j in range(len(body_names)):
 dim = 1e12
 ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
 plt.legend()
-#plt.show()
+plt.show()
