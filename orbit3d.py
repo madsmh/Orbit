@@ -266,8 +266,8 @@ def diangnostic():
 diangnostic()
 
 for j in range(n_bodies):
-    ax.plot(tra.get_trajectory(j)[:, 0], tra.get_trajectory(j)[:, 1],
-            tra.get_trajectory(j)[:, 2], label=body_names[j])
+    ax.plot(tra.get_trajectory(j)[::detail, 0], tra.get_trajectory(j)[::detail, 1],
+            tra.get_trajectory(j)[::detail, 2], label=body_names[j])
 
 # ax.plot(venus[:, 0], venus[:, 1], venus[:, 2], label='Venus diagnostic')
 # ax.plot(earth[:, 0], earth[:, 1], earth[:, 2], label='Earth diagnostic')
@@ -276,4 +276,4 @@ for j in range(n_bodies):
 dim = 1e12
 ax.auto_scale_xyz([-dim, dim], [-dim, dim], [-dim, dim])
 plt.legend()
-#plt.show()
+plt.show()
